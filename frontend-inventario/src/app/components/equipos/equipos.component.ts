@@ -17,52 +17,6 @@ import { environment } from '../../../environments/environment';
         <button class="btn-primary" (click)="mostrarFormulario()">Nuevo Equipo</button>
       </div>
 
-      <!-- Formulario de Equipo -->
-      <div class="form-container" *ngIf="formularioVisible">
-        <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()">
-          <div class="form-group">
-            <label>Código</label>
-            <input type="text" formControlName="codigo">
-          </div>
-          <div class="form-group">
-            <label>Tipo de Equipo</label>
-            <select formControlName="tipoEquipo">
-              <option *ngFor="let tipo of tiposEquipo" [value]="tipo._id">
-                {{tipo.nombre}}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Marca</label>
-            <input type="text" formControlName="marca">
-          </div>
-          <div class="form-group">
-            <label>Modelo</label>
-            <input type="text" formControlName="modelo">
-          </div>
-          <div class="form-group">
-            <label>Serial</label>
-            <input type="text" formControlName="serial">
-          </div>
-          <div class="form-group" *ngIf="esComputador()">
-            <label>Memoria RAM</label>
-            <input type="text" formControlName="memoriaRam">
-          </div>
-          <div class="form-group" *ngIf="esComputador()">
-            <label>Disco Duro</label>
-            <input type="text" formControlName="discoDuro">
-          </div>
-          <div class="form-group" *ngIf="esComputador()">
-            <label>Procesador</label>
-            <input type="text" formControlName="procesador">
-          </div>
-          <div class="form-buttons">
-            <button type="submit" class="btn-primary">Guardar</button>
-            <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
-          </div>
-        </form>
-      </div>
-
       <!-- Lista de Equipos -->
       <div class="equipos-list">
         <div class="filters">
@@ -71,37 +25,82 @@ import { environment } from '../../../environments/environment';
             [(ngModel)]="filtro" 
             placeholder="Buscar por código o serial..."
             (keyup)="aplicarFiltro()">
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Tipo</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Serial</th>
-              <th>Usuario Asignado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let equipo of equiposFiltrados">
-              <td>{{equipo.codigo}}</td>
-              <td>{{equipo.tipoEquipo?.nombre}}</td>
-              <td>{{equipo.marca}}</td>
-              <td>{{equipo.modelo}}</td>
-              <td>{{equipo.serial}}</td>
-              <td>{{equipo.usuarioAsignado?.nombre || 'No asignado'}}</td>
-              <td>
-                <button (click)="editarEquipo(equipo)">Editar</button>
-                <button (click)="eliminarEquipo(equipo._id)">Eliminar</button>
-                <button (click)="asignarEquipo(equipo)" class="btn-asignar">Asignar</button>
-                <button (click)="verDetalles(equipo)" class="btn-detalles">Ver Detalles</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Tipo</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Serial</th>
+            <th>Usuario Asignado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let equipo of equiposFiltrados">
+            <td>{{equipo.codigo}}</td>
+            <td>{{equipo.tipoEquipo?.nombre}}</td>
+            <td>{{equipo.marca}}</td>
+            <td>{{equipo.modelo}}</td>
+            <td>{{equipo.serial}}</td>
+            <td>{{equipo.usuarioAsignado?.nombre || 'No asignado'}}</td>
+            <td>
+              <button (click)="editarEquipo(equipo)">Actualizar</button>
+              <button (click)="eliminarEquipo(equipo._id)">Eliminar</button>
+              <button (click)="asignarEquipo(equipo)" class="btn-asignar">Asignar</button>
+              <button (click)="verDetalles(equipo)" class="btn-detalles">Ver Detalles</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Formulario de Equipo -->
+    <div class="form-container" *ngIf="formularioVisible">
+      <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()">
+        <div class="form-group">
+          <label>Código</label>
+          <input type="text" formControlName="codigo" [readonly]="equipoSeleccionado">
+        </div>
+        <div class="form-group">
+          <label>Tipo de Equipo</label>
+          <select formControlName="tipoEquipo">
+            <option *ngFor="let tipo of tiposEquipo" [value]="tipo._id">
+              {{tipo.nombre}}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Marca</label>
+          <input type="text" formControlName="marca">
+        </div>
+        <div class="form-group">
+          <label>Modelo</label>
+          <input type="text" formControlName="modelo">
+        </div>
+        <div class="form-group">
+          <label>Serial</label>
+          <input type="text" formControlName="serial">
+        </div>
+        <div class="form-group" *ngIf="esComputador()">
+          <label>Memoria RAM</label>
+          <input type="text" formControlName="memoriaRam">
+        </div>
+        <div class="form-group" *ngIf="esComputador()">
+          <label>Disco Duro</label>
+          <input type="text" formControlName="discoDuro">
+        </div>
+        <div class="form-group" *ngIf="esComputador()">
+          <label>Procesador</label>
+          <input type="text" formControlName="procesador">
+        </div>
+        <div class="form-buttons">
+          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
     </div>
   `,
   styles: [`
@@ -190,6 +189,7 @@ export class EquiposComponent implements OnInit {
   tiposEquipo: any[] = [];
   formularioVisible = false;
   filtro = '';
+  equipoSeleccionado: any = null; // Agregamos esta propiedad
 
   constructor(
     private fb: FormBuilder,
@@ -226,64 +226,76 @@ export class EquiposComponent implements OnInit {
     });
   }
 
+  editarEquipo(equipo: any) {
+    this.equipoSeleccionado = equipo; // Usamos equipoSeleccionado en lugar de usuarioSeleccionado
+    this.equipoForm.patchValue({
+      codigo: equipo.codigo,
+      tipoEquipo: equipo.tipoEquipo._id,
+      marca: equipo.marca,
+      modelo: equipo.modelo,
+      serial: equipo.serial,
+      memoriaRam: equipo.memoriaRam,
+      discoDuro: equipo.discoDuro,
+      procesador: equipo.procesador
+    });
+    this.formularioVisible = true;
+  }
+
   guardarEquipo() {
     if (this.equipoForm.valid) {
       const equipo = this.equipoForm.value;
       
-      // Validaciones adicionales antes de enviar
-      if (!equipo.codigo || !equipo.tipoEquipo || !equipo.marca || !equipo.modelo || !equipo.serial) {
-        alert('Por favor, complete todos los campos obligatorios.');
-        return;
-      }
-
-      // Si es un computador, validar campos específicos
-      if (this.esComputador()) {
-        if (!equipo.memoriaRam || !equipo.discoDuro || !equipo.procesador) {
-          alert('Para equipos tipo computador, debe completar la información de RAM, Disco Duro y Procesador.');
-          return;
-        }
-      }
-
-      this.http.post(`${environment.apiUrl}/equipos`, equipo)
-        .subscribe({
-          next: (response) => {
-            this.cargarEquipos();
-            this.formularioVisible = false;
-            this.equipoForm.reset();
-            alert('Equipo guardado exitosamente');
-          },
-          error: (error) => {
-            console.error('Error al guardar el equipo:', error);
-            let mensajeError = 'Error al guardar el equipo. ';
-            
-            if (error.error && error.error.message) {
-              mensajeError += error.error.message;
-            } else {
-              mensajeError += 'Por favor, verifique los datos e intente nuevamente.';
+      if (this.equipoSeleccionado) {
+        // Si estamos editando un equipo existente
+        this.http.put(`${environment.apiUrl}/equipos/${this.equipoSeleccionado._id}`, equipo)
+          .subscribe({
+            next: () => {
+              alert('Equipo actualizado exitosamente');
+              this.cargarEquipos();
+              this.formularioVisible = false;
+              this.equipoForm.reset();
+              this.equipoSeleccionado = null;
+            },
+            error: (error) => {
+              console.error('Error al actualizar equipo:', error);
+              let mensajeError = 'Error al actualizar el equipo. ';
+              if (error.error && error.error.message) {
+                mensajeError += error.error.message;
+              }
+              alert(mensajeError);
             }
-            
-            alert(mensajeError);
-          }
-        });
-    } else {
-      const camposFaltantes: string[] = [];
-      
-      Object.keys(this.equipoForm.controls).forEach(key => {
-        const control = this.equipoForm.get(key);
-        if (control?.errors?.['required']) {
-          camposFaltantes.push(key);
-        }
-      });
-      
-      if (camposFaltantes.length > 0) {
-        alert(`Por favor, complete los siguientes campos obligatorios: ${camposFaltantes.join(', ')}`);
+          });
+      } else {
+        // Si estamos creando un nuevo equipo
+        this.http.post(`${environment.apiUrl}/equipos`, equipo)
+          .subscribe({
+            next: (response) => {
+              this.cargarEquipos();
+              this.formularioVisible = false;
+              this.equipoForm.reset();
+              alert('Equipo guardado exitosamente');
+            },
+            error: (error) => {
+              console.error('Error al guardar el equipo:', error);
+              let mensajeError = 'Error al guardar el equipo. ';
+              
+              if (error.error && error.error.message) {
+                mensajeError += error.error.message;
+              } else {
+                mensajeError += 'Por favor, verifique los datos e intente nuevamente.';
+              }
+              
+              alert(mensajeError);
+            }
+          });
       }
     }
   }
 
-  editarEquipo(equipo: any) {
-    this.equipoForm.patchValue(equipo);
-    this.formularioVisible = true;
+  cancelar() {
+    this.formularioVisible = false;
+    this.equipoForm.reset();
+    this.equipoSeleccionado = null; // Limpiamos el equipo seleccionado
   }
 
   eliminarEquipo(id: string) {
@@ -296,11 +308,6 @@ export class EquiposComponent implements OnInit {
 
   mostrarFormulario() {
     this.formularioVisible = true;
-    this.equipoForm.reset();
-  }
-
-  cancelar() {
-    this.formularioVisible = false;
     this.equipoForm.reset();
   }
 
