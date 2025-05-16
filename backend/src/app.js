@@ -1,0 +1,35 @@
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Conexión a MongoDB
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('Conectado a MongoDB'))
+    .catch(err => console.error('Error conectando a MongoDB:', err));
+
+// Rutas
+const usuarioRoutes = require('./routes/usuarioRoutes');
+const equipoRoutes = require('./routes/equipoRoutes');
+const reporteRoutes = require('./routes/reporteRoutes');
+app.use('/api/reportes', reporteRoutes);
+const historialRoutes = require('./routes/historialRoutes');
+const tipoEquipoRoutes = require('./routes/tipoEquipoRoutes');
+app.use('/api/tipos-equipo', tipoEquipoRoutes);
+const alertaRoutes = require('./routes/alertaRoutes');
+app.use('/api/alertas', alertaRoutes);
+app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/equipos', equipoRoutes);
+app.use('/api/historial', historialRoutes);
+
+// Puerto y conexión
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
+});
