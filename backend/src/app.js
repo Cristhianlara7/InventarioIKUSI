@@ -21,6 +21,7 @@ const reporteRoutes = require('./routes/reporteRoutes');
 const historialRoutes = require('./routes/historialRoutes');
 const tipoEquipoRoutes = require('./routes/tipoEquipoRoutes');
 const alertaRoutes = require('./routes/alertaRoutes');
+const empleadosRoutes = require('../routes/empleados.routes');  // Agregamos esta línea
 
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/tipos-equipo', tipoEquipoRoutes);
@@ -28,6 +29,7 @@ app.use('/api/alertas', alertaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/equipos', equipoRoutes);
 app.use('/api/historial', historialRoutes);
+app.use('/api/empleados', empleadosRoutes);  // Agregamos esta línea
 
 // Puerto y conexión
 const PORT = process.env.PORT || 3000;

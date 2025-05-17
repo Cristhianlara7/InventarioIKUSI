@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
   template: `
     <div class="usuarios-container">
       <div class="header">
-        <h2>Gestión de Usuarios</h2>
+        <h2>Gestión de Usuarios del Sistema</h2>
         <button class="btn-primary" (click)="mostrarFormulario()">Nuevo Usuario</button>
       </div>
 
@@ -62,8 +62,8 @@ import { environment } from '../../../environments/environment';
               <td>{{usuario.email}}</td>
               <td>{{usuario.rol}}</td>
               <td>
-                <button (click)="editarUsuario(usuario)">Editar</button>
-                <button (click)="eliminarUsuario(usuario._id)">Eliminar</button>
+                <button class="btn-editar" (click)="editarUsuario(usuario)">Editar</button>
+                <button class="btn-eliminar" (click)="eliminarUsuario(usuario._id)">Eliminar</button>
               </td>
             </tr>
           </tbody>

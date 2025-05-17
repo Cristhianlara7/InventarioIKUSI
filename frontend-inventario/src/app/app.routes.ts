@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { EmpleadosComponent } from './components/empleados/empleados.component';
+import { UsuariosComponent } from './components/usuarios/usuarios.component';
 import { AuthGuard } from './guards/auth.guard';
 import { PerfilComponent } from './components/perfil/perfil.component';
 
@@ -34,24 +36,12 @@ export const routes: Routes = [
                   .then(m => m.EquiposComponent)
             },
             {
+                path: 'empleados',
+                component: EmpleadosComponent
+            },
+            {
                 path: 'usuarios',
-                loadComponent: () => import('./components/usuarios/usuarios.component')
-                  .then(m => m.UsuariosComponent)
-            },
-            {
-                path: 'reportes',
-                loadComponent: () => import('./components/reportes/reportes.component')
-                  .then(m => m.ReportesComponent)
-            },
-            {
-                path: 'equipos/asignar',
-                loadComponent: () => import('./components/equipos/asignar-equipo.component')
-                  .then(m => m.AsignarEquipoComponent)
-            },
-            {
-                path: 'tipos-equipo',
-                loadComponent: () => import('./components/tipos-equipo/tipos-equipo.component')
-                  .then(m => m.TiposEquipoComponent)
+                component: UsuariosComponent
             }
         ]
     }
