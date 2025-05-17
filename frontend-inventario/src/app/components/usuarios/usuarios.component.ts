@@ -12,15 +12,15 @@ import { environment } from '../../../environments/environment';
   template: `
     <div class="usuarios-container">
       <div class="header">
-        <h2>Gestión de Usuarios del Sistema</h2>
-        <button class="btn-primary" (click)="mostrarFormulario()">Nuevo Usuario</button>
+        <h2>Gestión de Usuarios</h2>
+        <button class="btn-nuevo" (click)="mostrarFormulario()">Nuevo</button>
       </div>
 
       <!-- Formulario de Usuario -->
       <div class="form-container" *ngIf="formularioVisible">
         <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
           <div class="form-group">
-            <label>Nombre</label>
+            <label>Nombres</label>
             <input type="text" formControlName="nombre">
           </div>
           <div class="form-group">
@@ -34,7 +34,7 @@ import { environment } from '../../../environments/environment';
           <div class="form-group">
             <label>Rol</label>
             <select formControlName="rol">
-              <option value="usuario">Usuario</option>
+              <option value="visitante">Visitante</option>
               <option value="administrador">Administrador</option>
             </select>
           </div>
@@ -50,9 +50,9 @@ import { environment } from '../../../environments/environment';
         <table>
           <thead>
             <tr>
-              <th>Nombre</th>
+              <th>Nombres</th>
               <th>Email</th>
-              <th>Rol</th>
+              <th>Departamento</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -61,7 +61,7 @@ import { environment } from '../../../environments/environment';
               <td>{{usuario.nombre}}</td>
               <td>{{usuario.email}}</td>
               <td>{{usuario.rol}}</td>
-              <td>
+              <td class="acciones">
                 <button class="btn-editar" (click)="editarUsuario(usuario)">Editar</button>
                 <button class="btn-eliminar" (click)="eliminarUsuario(usuario._id)">Eliminar</button>
               </td>
@@ -74,13 +74,30 @@ import { environment } from '../../../environments/environment';
   styles: [`
     .usuarios-container {
       padding: 20px;
+      background-color: #f5f5f5;
     }
+
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
+
+    .header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .btn-nuevo {
+      background-color: #007bff; 
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
     .form-container {
       background: white;
       padding: 20px;
@@ -88,27 +105,92 @@ import { environment } from '../../../environments/environment';
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       margin-bottom: 20px;
     }
+
     .form-group {
       margin-bottom: 15px;
     }
+
     .form-group label {
       display: block;
       margin-bottom: 5px;
+      color: #333;
+      font-weight: 500;
     }
+
     .form-group input, .form-group select {
       width: 100%;
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
+      font-size: 14px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+
     th, td {
-      padding: 12px;
+      padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-editar {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-eliminar {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-primary {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
     }
   `]
 })
@@ -126,7 +208,7 @@ export class UsuariosComponent implements OnInit {
       nombre: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      rol: ['usuario', Validators.required]
+      rol: ['visitante', Validators.required] // Cambiamos el valor por defecto a 'visitante'
     });
   }
 
@@ -142,21 +224,31 @@ export class UsuariosComponent implements OnInit {
 
   guardarUsuario() {
     if (this.usuarioForm.valid) {
-      const usuarioData = this.usuarioForm.value;
+      const usuarioData = {...this.usuarioForm.value};
       
       if (this.usuarioSeleccionado) {
         // Si estamos editando un usuario existente
+        // Eliminamos la contraseña si está vacía
+        if (!usuarioData.password) {
+          delete usuarioData.password;
+        }
+        
         this.http.put(`${environment.apiUrl}/usuarios/${this.usuarioSeleccionado._id}`, usuarioData)
           .subscribe({
             next: () => {
               alert('Usuario actualizado exitosamente');
               this.cargarUsuarios();
+              this.formularioVisible = false;
               this.usuarioForm.reset();
               this.usuarioSeleccionado = null;
             },
             error: (error) => {
               console.error('Error al actualizar usuario:', error);
-              alert('Error al actualizar el usuario');
+              let mensajeError = 'Error al actualizar el usuario: ';
+              if (error.error?.message) {
+                mensajeError += error.error.message;
+              }
+              alert(mensajeError);
             }
           });
       } else {
@@ -166,11 +258,16 @@ export class UsuariosComponent implements OnInit {
             next: () => {
               alert('Usuario creado exitosamente');
               this.cargarUsuarios();
+              this.formularioVisible = false;
               this.usuarioForm.reset();
             },
             error: (error) => {
               console.error('Error al crear usuario:', error);
-              alert('Error al crear el usuario');
+              let mensajeError = 'Error al crear el usuario: ';
+              if (error.error?.message) {
+                mensajeError += error.error.message;
+              }
+              alert(mensajeError);
             }
           });
       }

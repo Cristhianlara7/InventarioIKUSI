@@ -10,8 +10,8 @@ router.post('/registro', usuarioController.create);
 
 // Rutas protegidas
 router.get('/', auth, verificarRol(['administrador']), usuarioController.getAll);
-router.get('/:id', auth, verificarRol(['administrador']), usuarioController.getById);
-router.put('/:id', auth, verificarRol(['administrador']), usuarioController.update);
+router.get('/:id', auth, usuarioController.getById);
+router.put('/:id', auth, usuarioController.update);
 router.delete('/:id', auth, verificarRol(['administrador']), usuarioController.delete);
 
 module.exports = router;
