@@ -17,4 +17,7 @@ router.post('/', auth, verificarRol(['administrador']), equipoController.create)
 router.put('/:id', auth, verificarRol(['administrador']), equipoController.update);
 router.delete('/:id', auth, verificarRol(['administrador']), equipoController.delete);
 
+// Cambiar de asignar-usuario a asignar-equipo para mantener consistencia
+router.post('/:id/asignar-equipo', equipoController.asignarEquipo);
+
 module.exports = router;

@@ -12,27 +12,16 @@ export class EquipoService {
   constructor(private http: HttpClient) {}
 
   asignarEquipo(equipoId: string, usuarioId: string): Observable<any> {
-    const payload = {
-      usuarioId: usuarioId,
-      estado: 'Asignado'
-    };
-    // Probamos con una ruta más simple
-    return this.http.post(`${this.apiUrl}/${equipoId}/asignar-usuario`, payload);
+    console.log('URL de asignación:', `${this.apiUrl}/${equipoId}/asignar-equipo`);
+    console.log('Datos a enviar:', { equipoId, usuarioId });
+    return this.http.post(`${this.apiUrl}/${equipoId}/asignar-equipo`, { usuarioId });
   }
 
-  getEquiposAsignados(usuarioId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/usuario/${usuarioId}`);
-  }
-
-  getEquiposDisponibles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/disponibles`);
+  getEquiposAsignados(usuarioId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/asignados/${usuarioId}`);
   }
 
   devolverEquipo(equipoId: string, motivo: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/${equipoId}/devolver`, { motivo });
-  }
-
-  actualizarEstadoEquipo(equipoId: string, estado: string, notas: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${equipoId}/estado`, { estado, notas });
   }
 }

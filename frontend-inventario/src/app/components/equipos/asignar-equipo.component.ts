@@ -5,7 +5,7 @@ import { EquipoService } from '../../services/equipo.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';  // Agregar Router aquí
 
 @Component({
   selector: 'app-asignar-equipo',
@@ -134,7 +134,8 @@ export class AsignarEquipoComponent implements OnInit {
     private equipoService: EquipoService,
     private authService: AuthService,
     private http: HttpClient,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router  // Agregar Router
   ) {}
 
   ngOnInit() {
@@ -169,33 +170,37 @@ export class AsignarEquipoComponent implements OnInit {
       return;
     }
 
-    console.log('Datos de asignación:', {
+    console.log('Intentando asignar equipo:', {
       equipoId: this.equipoId,
-      usuarioId: usuarioId
+      usuarioId: usuarioId,
+      url: `${environment.apiUrl}/equipos/${this.equipoId}/asignar-equipo`
     });
 
     this.equipoService.asignarEquipo(this.equipoId, usuarioId).subscribe({
       next: (response) => {
         console.log('Respuesta del servidor:', response);
         alert('Equipo asignado exitosamente');
-        this.cargarEquiposAsignados(usuarioId);
+        // Redirigir al listado de equipos
+        this.router.navigate(['/equipos']);
       },
       error: (error) => {
         console.error('Error completo:', error);
         let mensajeError = 'Error al asignar el equipo. ';
         
         if (error.status === 404) {
-          mensajeError += 'La ruta de asignación no existe en el servidor.';
+          mensajeError += `La ruta de asignación no existe en el servidor. URL: /equipos/${this.equipoId}/asignar-equipo`;
         } else if (error.error && error.error.message) {
           mensajeError += error.error.message;
         } else {
           mensajeError += 'Verifique la conexión con el servidor.';
         }
         
+        console.error('URL utilizada:', `${environment.apiUrl}/equipos/${this.equipoId}/asignar-equipo`);
+        console.error('Datos enviados:', { equipoId: this.equipoId, usuarioId });
         alert(mensajeError);
       }
     });
-  }
+}
 
   devolverEquipo(equipoId: string) {
     const motivo = prompt('Por favor, ingrese el motivo de la devolución (formateo, cambio de batería, etc.):');
