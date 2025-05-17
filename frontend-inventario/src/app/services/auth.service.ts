@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -8,10 +8,11 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl;  // Removemos /auth de la URL base
+  private apiUrl = environment.apiUrl;
   private userSubject = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient) {
+    // Inicializar userSubject con el usuario del localStorage si existe
     const user = localStorage.getItem('user');
     if (user) {
       this.userSubject.next(JSON.parse(user));
@@ -81,6 +82,10 @@ export class AuthService {
           this.logout();
         })
       );
+  }
+
+  getUsers(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/usuarios`);
   }
 }
 

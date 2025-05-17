@@ -10,22 +10,391 @@ import { environment } from '../../../environments/environment';
   selector: 'app-equipos',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  template: `
-    <div class="equipos-container">
-      <div class="header">
-        <h2>Gestión de Equipos</h2>
-        <button class="btn-primary" (click)="mostrarFormulario()">Nuevo Equipo</button>
-      </div>
+  styles: [`
+    .table-container {
+      overflow-x: auto;
+      margin: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-      <!-- Lista de Equipos -->
-      <div class="equipos-list">
-        <div class="filters">
-          <input 
-            type="text" 
-            [(ngModel)]="filtro" 
-            placeholder="Buscar por código o serial..."
-            (keyup)="aplicarFiltro()">
-      </div>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+      color: #2c3e50;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-actualizar {
+      background-color: #17a2b8;
+      color: white;
+    }
+
+    .btn-actualizar:hover {
+      background-color: #138496;
+    }
+
+    .btn-eliminar {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-eliminar:hover {
+      background-color: #c82333;
+    }
+
+    .btn-asignar {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-asignar:hover {
+      background-color: #218838;
+    }
+
+    .btn-detalles {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-detalles:hover {
+      background-color: #5a6268;
+    }
+
+    .search-container {
+      margin: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .btn-nuevo {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-nuevo:hover {
+      background-color: #0056b3;
+    }
+
+    .formulario-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .formulario {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .botones {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-guardar {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-guardar:hover {
+      background-color: #218838;
+    }
+
+    .btn-guardar:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .btn-cancelar {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-cancelar:hover {
+      background-color: #c82333;
+    }
+  
+    .table-container {
+      overflow-x: auto;
+      margin: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+      color: #2c3e50;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-actualizar {
+      background-color: #17a2b8;
+      color: white;
+    }
+
+    .btn-actualizar:hover {
+      background-color: #138496;
+    }
+
+    .btn-eliminar {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-eliminar:hover {
+      background-color: #c82333;
+    }
+
+    .btn-asignar {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-asignar:hover {
+      background-color: #218838;
+    }
+
+    .btn-detalles {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-detalles:hover {
+      background-color: #5a6268;
+    }
+
+    .search-container {
+      margin: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .btn-nuevo {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-nuevo:hover {
+      background-color: #0056b3;
+    }
+
+    .formulario-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .formulario {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .botones {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-guardar {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-guardar:hover {
+      background-color: #218838;
+    }
+
+    .btn-guardar:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .btn-cancelar {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-cancelar:hover {
+      background-color: #c82333;
+    }
+  `],
+  template: `
+    <div class="search-container">
+      <input 
+        type="text" 
+        placeholder="Buscar por código o serial..." 
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filtrarEquipos()"
+      >
+      <button class="btn btn-nuevo" (click)="agregarEquipo()">
+        Nuevo Equipo
+      </button>
+    </div>
+
+    <div class="table-container">
       <table>
         <thead>
           <tr>
@@ -46,141 +415,90 @@ import { environment } from '../../../environments/environment';
             <td>{{equipo.modelo}}</td>
             <td>{{equipo.serial}}</td>
             <td>{{equipo.usuarioAsignado?.nombre || 'No asignado'}}</td>
-            <td>
-              <button (click)="editarEquipo(equipo)">Actualizar</button>
-              <button (click)="eliminarEquipo(equipo._id)">Eliminar</button>
-              <button (click)="asignarEquipo(equipo)" class="btn-asignar">Asignar</button>
-              <button (click)="verDetalles(equipo)" class="btn-detalles">Ver Detalles</button>
+            <td class="acciones">
+              <button class="btn btn-actualizar" (click)="editarEquipo(equipo)">
+                Actualizar
+              </button>
+              <button class="btn btn-eliminar" (click)="eliminarEquipo(equipo)">
+                Eliminar
+              </button>
+              <button class="btn btn-asignar" (click)="asignarEquipo(equipo)">
+                Asignar
+              </button>
+              <button class="btn btn-detalles" (click)="verDetalles(equipo)">
+                Ver Detalles
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <!-- Formulario de Equipo -->
-    <div class="form-container" *ngIf="formularioVisible">
-      <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()">
-        <div class="form-group">
-          <label>Código</label>
-          <input type="text" formControlName="codigo" [readonly]="equipoSeleccionado">
-        </div>
-        <div class="form-group">
-          <label>Tipo de Equipo</label>
-          <select formControlName="tipoEquipo">
-            <option *ngFor="let tipo of tiposEquipo" [value]="tipo._id">
-              {{tipo.nombre}}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Marca</label>
-          <input type="text" formControlName="marca">
-        </div>
-        <div class="form-group">
-          <label>Modelo</label>
-          <input type="text" formControlName="modelo">
-        </div>
-        <div class="form-group">
-          <label>Serial</label>
-          <input type="text" formControlName="serial">
-        </div>
-        <div class="form-group" *ngIf="esComputador()">
-          <label>Memoria RAM</label>
-          <input type="text" formControlName="memoriaRam">
-        </div>
-        <div class="form-group" *ngIf="esComputador()">
-          <label>Disco Duro</label>
-          <input type="text" formControlName="discoDuro">
-        </div>
-        <div class="form-group" *ngIf="esComputador()">
-          <label>Procesador</label>
-          <input type="text" formControlName="procesador">
-        </div>
-        <div class="form-buttons">
-          <button type="submit" class="btn-primary">Guardar</button>
-          <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
-        </div>
-      </form>
-    </div>
+
+    <!-- Agregar el formulario -->
+    <div class="formulario-container" *ngIf="formularioVisible">
+      <div class="formulario">
+        <h3>{{equipoSeleccionado ? 'Editar Equipo' : 'Nuevo Equipo'}}</h3>
+        <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()">
+          <div class="form-group">
+            <label>Código:</label>
+            <input type="text" formControlName="codigo">
+          </div>
+          
+          <div class="form-group">
+            <label>Tipo de Equipo:</label>
+            <select formControlName="tipoEquipo">
+              <option value="">Seleccione un tipo</option>
+              <option *ngFor="let tipo of tiposEquipo" [value]="tipo._id">
+                {{tipo.nombre}}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Marca:</label>
+            <input type="text" formControlName="marca">
+          </div>
+
+          <div class="form-group">
+            <label>Modelo:</label>
+            <input type="text" formControlName="modelo">
+          </div>
+
+          <div class="form-group">
+            <label>Serial:</label>
+            <input type="text" formControlName="serial">
+          </div>
+
+          <ng-container *ngIf="esComputador()">
+            <div class="form-group">
+              <label>Memoria RAM:</label>
+              <input type="text" formControlName="memoriaRam">
+            </div>
+
+            <div class="form-group">
+              <label>Disco Duro:</label>
+              <input type="text" formControlName="discoDuro">
+            </div>
+
+            <div class="form-group">
+              <label>Procesador:</label>
+              <input type="text" formControlName="procesador">
+            </div>
+          </ng-container>
+
+          <div class="botones">
+            <button type="submit" class="btn btn-guardar" [disabled]="!equipoForm.valid">
+              Guardar
+            </button>
+            <button type="button" class="btn btn-cancelar" (click)="cancelar()">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   `,
-  styles: [`
-    .equipos-container {
-      padding: 20px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .form-container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .equipos-list table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .equipos-list th, .equipos-list td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    .filters {
-      margin-bottom: 20px;
-    }
-    .filters input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .btn-primary {
-      background: #2c3e50;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-secondary {
-      background: #95a5a6;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    .btn-asignar, .btn-detalles {
-      background: #2a5298;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    .btn-detalles {
-      background: #34495e;
-    }
-  `]
+  
 })
 export class EquiposComponent implements OnInit {
   equipoForm: FormGroup;
@@ -188,8 +506,8 @@ export class EquiposComponent implements OnInit {
   equiposFiltrados: any[] = [];
   tiposEquipo: any[] = [];
   formularioVisible = false;
-  filtro = '';
-  equipoSeleccionado: any = null; // Agregamos esta propiedad
+  searchTerm: string = '';
+  equipoSeleccionado: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -298,25 +616,16 @@ export class EquiposComponent implements OnInit {
     this.equipoSeleccionado = null; // Limpiamos el equipo seleccionado
   }
 
-  eliminarEquipo(id: string) {
+  eliminarEquipo(equipo: any) {
     if (confirm('¿Está seguro de eliminar este equipo?')) {
-      this.http.delete(`${environment.apiUrl}/equipos/${id}`).subscribe(() => {
+      this.http.delete(`${environment.apiUrl}/equipos/${equipo._id}`).subscribe(() => {
         this.cargarEquipos();
       });
     }
   }
 
-  mostrarFormulario() {
-    this.formularioVisible = true;
-    this.equipoForm.reset();
-  }
-
-  aplicarFiltro() {
-    this.equiposFiltrados = this.equipos.filter(equipo => 
-      equipo.codigo.toLowerCase().includes(this.filtro.toLowerCase()) ||
-      equipo.serial.toLowerCase().includes(this.filtro.toLowerCase())
-    );
-  }
+  // Eliminar completamente el método aplicarFiltro() ya que es redundante
+  // y usar solo filtrarEquipos()
 
   asignarEquipo(equipo: any) {
     // Navegar a la página de asignación con el ID del equipo
@@ -344,5 +653,27 @@ export class EquiposComponent implements OnInit {
     const tipoEquipoId = this.equipoForm.get('tipoEquipo')?.value;
     const tipoEquipo = this.tiposEquipo.find(tipo => tipo._id === tipoEquipoId);
     return tipoEquipo?.nombre.toLowerCase() === 'computador';
+  }
+
+  agregarEquipo() {
+    this.equipoSeleccionado = null; // Limpiar cualquier equipo seleccionado previamente
+    this.equipoForm.reset(); // Resetear el formulario
+    this.formularioVisible = true; // Mostrar el formulario
+  }
+
+  // Agregar método para filtrar equipos
+  filtrarEquipos() {
+    if (!this.searchTerm) {
+      this.equiposFiltrados = [...this.equipos];
+      return;
+    }
+    
+    const termino = this.searchTerm.toLowerCase();
+    this.equiposFiltrados = this.equipos.filter(equipo => 
+      equipo.codigo?.toLowerCase().includes(termino) ||
+      equipo.serial?.toLowerCase().includes(termino) ||
+      equipo.marca?.toLowerCase().includes(termino) ||
+      equipo.modelo?.toLowerCase().includes(termino)
+    );
   }
 }

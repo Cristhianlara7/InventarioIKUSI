@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';  // Agregar esta importación
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -18,7 +19,11 @@ export class EquipoService {
   }
 
   getEquiposAsignados(usuarioId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/asignados/${usuarioId}`);
+    console.log('Solicitando equipos asignados para usuario:', usuarioId);
+    // Change the endpoint structure to match the backend
+    return this.http.get(`${this.apiUrl}/usuario/${usuarioId}/asignados`).pipe(
+        tap(response => console.log('Respuesta del servidor para equipos asignados:', response))
+    );
   }
 
   devolverEquipo(equipoId: string, motivo: string): Observable<any> {

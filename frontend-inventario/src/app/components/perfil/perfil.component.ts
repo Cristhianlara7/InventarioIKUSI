@@ -2,7 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { EquipoService } from '../../services/equipo.service';
+import { ChangeDetectorRef } from '@angular/core';
+
+interface Usuario {
+    id: string;
+    nombre: string;
+    email: string;
+    rol: string;
+}
 
 @Component({
   selector: 'app-perfil',
@@ -54,21 +61,6 @@ import { EquipoService } from '../../services/equipo.service';
           </button>
         </form>
       </div>
-
-      <div class="equipos-asignados">
-        <h3>Mis Equipos Asignados</h3>
-        <div class="equipo-list">
-          <div *ngFor="let equipo of equiposAsignados" class="equipo-card">
-            <h4>{{equipo.codigo}}</h4>
-            <p>Tipo: {{equipo.tipoEquipo.nombre}}</p>
-            <p>Marca: {{equipo.marca}}</p>
-            <p>Modelo: {{equipo.modelo}}</p>
-            <button (click)="devolverEquipo(equipo._id)" class="btn-devolver">
-              Devolver Equipo
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   `,
   styles: [`
@@ -77,7 +69,7 @@ import { EquipoService } from '../../services/equipo.service';
       max-width: 800px;
       margin: 0 auto;
     }
-    .perfil-info, .cambiar-password, .equipos-asignados {
+    .perfil-info, .cambiar-password {
       background: white;
       padding: 1.5rem;
       border-radius: 8px;
@@ -97,10 +89,6 @@ import { EquipoService } from '../../services/equipo.service';
     .form-group p {
       margin: 0;
     }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-    }
     .form-group input {
       width: 100%;
       padding: 0.5rem;
@@ -119,21 +107,6 @@ import { EquipoService } from '../../services/equipo.service';
       background: #95a5a6;
       cursor: not-allowed;
     }
-    .equipo-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-    .equipo-card {
-      background: #f8f9fa;
-      padding: 1rem;
-      border-radius: 4px;
-    }
-    .btn-devolver {
-      background: #e74c3c;
-      width: 100%;
-      margin-top: 1rem;
-    }
     .error-message {
       color: #e74c3c;
       font-size: 0.875rem;
@@ -141,27 +114,16 @@ import { EquipoService } from '../../services/equipo.service';
     }
   `]
 })
+
+
 export class PerfilComponent implements OnInit {
-  usuario: {
-    _id: string;
-    nombre: string;
-    email: string;
-  } | null = null;
+  usuario: Usuario | null = null;
   passwordForm: FormGroup;
-  equiposAsignados: Array<{
-    _id: string;
-    codigo: string;
-    tipoEquipo: {
-      nombre: string;
-    };  // Aquí definimos que tipoEquipo siempre tendrá un nombre
-    marca: string;
-    modelo: string;
-  }> = [];
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private equipoService: EquipoService
+    private cdr: ChangeDetectorRef
   ) {
     this.passwordForm = this.fb.group({
       passwordActual: ['', Validators.required],
@@ -171,29 +133,43 @@ export class PerfilComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Iniciando componente de perfil');
-    
-    // Obtener la información del usuario del localStorage
+    console.log('Iniciando componente de perfil');   
     const userStr = localStorage.getItem('user');
     if (userStr) {
-      console.log('Usuario encontrado en localStorage');
-      this.usuario = JSON.parse(userStr);
+      try {
+        const userLocal = JSON.parse(userStr);
+        if (this.isValidUser(userLocal)) {
+          this.usuario = userLocal;
+          console.log('Usuario válido obtenido del localStorage:', userLocal);
+        } else {
+          console.warn('Estructura de usuario inválida en localStorage');
+        }
+      } catch (e) {
+        console.error('Error al parsear usuario del localStorage:', e);
+      }
     }
     
     this.authService.getUser().subscribe({
       next: (user) => {
         console.log('Usuario obtenido del servicio:', user);
-        if (user) {
+        if (this.isValidUser(user)) {
           this.usuario = user;
-          this.cargarEquiposAsignados(user._id);
         } else {
-          console.error('No se recibió información del usuario');
+          console.warn('Estructura de usuario inválida del servidor');
         }
       },
       error: (error) => {
         console.error('Error al obtener usuario:', error);
       }
     });
+  }
+
+  private isValidUser(user: any): user is Usuario {
+    return user && 
+           typeof user.id === 'string' &&
+           typeof user.nombre === 'string' && 
+           typeof user.email === 'string' && 
+           typeof user.rol === 'string';
   }
 
   passwordMatchValidator(g: FormGroup) {
@@ -225,29 +201,6 @@ export class PerfilComponent implements OnInit {
         const control = this.passwordForm.get(key);
         if (control?.invalid) {
           control.markAsTouched();
-        }
-      });
-    }
-  }
-
-  cargarEquiposAsignados(usuarioId: string) {
-    this.equipoService.getEquiposAsignados(usuarioId).subscribe(equipos => {
-      this.equiposAsignados = equipos;
-    });
-  }
-
-  devolverEquipo(equipoId: string) {
-    const motivo = prompt('Por favor, ingrese el motivo de la devolución:');
-    if (motivo && this.usuario) {  // Agregamos verificación de usuario
-      this.equipoService.devolverEquipo(equipoId, motivo).subscribe({
-        next: () => {
-          alert('Equipo devuelto exitosamente');
-          if (this.usuario) {  // Verificación adicional por seguridad
-            this.cargarEquiposAsignados(this.usuario._id);
-          }
-        },
-        error: (error) => {
-          alert('Error al devolver el equipo: ' + error.message);
         }
       });
     }
