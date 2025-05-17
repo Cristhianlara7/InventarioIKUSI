@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { EquipoService } from '../../services/equipo.service'; // Añadido
+import { EquipoService } from '../../services/equipo.service';
 
 @Component({
   selector: 'app-perfil',
@@ -12,10 +12,16 @@ import { EquipoService } from '../../services/equipo.service'; // Añadido
     <div class="perfil-container">
       <h2>Perfil de Usuario</h2>
       
-      <div class="perfil-info">
+      <div class="perfil-info" *ngIf="usuario">
         <h3>Información Personal</h3>
-        <p><strong>Nombre:</strong> {{usuario?.nombre}}</p>
-        <p><strong>Email:</strong> {{usuario?.email}}</p>
+        <div class="info-group">
+          <label>Nombre:</label>
+          <p>{{usuario.nombre}}</p>
+        </div>
+        <div class="info-group">
+          <label>Email:</label>
+          <p>{{usuario.email}}</p>
+        </div>
       </div>
 
       <div class="cambiar-password">
@@ -80,6 +86,16 @@ import { EquipoService } from '../../services/equipo.service'; // Añadido
     }
     .form-group {
       margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .form-group label {
+      font-weight: bold;
+      min-width: 100px;
+    }
+    .form-group p {
+      margin: 0;
     }
     .form-group label {
       display: block;
@@ -155,10 +171,27 @@ export class PerfilComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.authService.getUser().subscribe(user => {
-      this.usuario = user;
-      if (user) {
-        this.cargarEquiposAsignados(user._id);
+    console.log('Iniciando componente de perfil');
+    
+    // Obtener la información del usuario del localStorage
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      console.log('Usuario encontrado en localStorage');
+      this.usuario = JSON.parse(userStr);
+    }
+    
+    this.authService.getUser().subscribe({
+      next: (user) => {
+        console.log('Usuario obtenido del servicio:', user);
+        if (user) {
+          this.usuario = user;
+          this.cargarEquiposAsignados(user._id);
+        } else {
+          console.error('No se recibió información del usuario');
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener usuario:', error);
       }
     });
   }

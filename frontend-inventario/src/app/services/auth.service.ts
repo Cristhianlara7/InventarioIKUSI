@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/usuarios`;
+  private apiUrl = environment.apiUrl;  // Removemos /auth de la URL base
   private userSubject = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient) {
@@ -19,30 +19,48 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    const user = this.userSubject.value;
-    return user ? user.token : null;
+    return localStorage.getItem('token');
   }
 
   register(userData: { nombre: string; email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userData)
       .pipe(
         tap((response: any) => {
-          localStorage.setItem('user', JSON.stringify(response));
-          this.userSubject.next(response);
-        })
-      );
-  }
-  login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        tap((response: any) => {
-          localStorage.setItem('user', JSON.stringify(response));
-          this.userSubject.next(response);
+          if (response.token) {
+            localStorage.setItem('token', response.token);
+          }
+          if (response.user) {
+            localStorage.setItem('user', JSON.stringify(response.user));
+            this.userSubject.next(response.user);
+          }
         })
       );
   }
 
+  login(credentials: {email: string, password: string}) {
+    return this.http.post<any>(`${environment.apiUrl}/usuarios/login`, credentials)
+      .pipe(
+        tap(response => {
+          if (response && response.token) {
+            // Guardamos tanto el token como el usuario
+            localStorage.setItem('token', response.token);
+            if (response.usuario) {
+              localStorage.setItem('user', JSON.stringify(response.usuario));
+              this.userSubject.next(response.usuario);
+            }
+          }
+        })
+      );
+  }
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    return !!(token && user);
+  }
+
   logout(): void {
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.userSubject.next(null);
   }
@@ -51,9 +69,6 @@ export class AuthService {
     return this.userSubject.asObservable();
   }
 
-  isAuthenticated(): boolean {
-    return this.userSubject.value !== null;
-  }
 
   cambiarPassword(passwordData: {
     passwordActual: string,
@@ -63,9 +78,9 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/cambiar-password`, passwordData)
       .pipe(
         tap(() => {
-          // Opcional: Actualizar el token si el backend lo devuelve
           this.logout();
         })
       );
   }
 }
+

@@ -18,11 +18,12 @@ mongoose.connect(process.env.MONGODB_URI)
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const equipoRoutes = require('./routes/equipoRoutes');
 const reporteRoutes = require('./routes/reporteRoutes');
-app.use('/api/reportes', reporteRoutes);
 const historialRoutes = require('./routes/historialRoutes');
 const tipoEquipoRoutes = require('./routes/tipoEquipoRoutes');
-app.use('/api/tipos-equipo', tipoEquipoRoutes);
 const alertaRoutes = require('./routes/alertaRoutes');
+
+app.use('/api/reportes', reporteRoutes);
+app.use('/api/tipos-equipo', tipoEquipoRoutes);
 app.use('/api/alertas', alertaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/equipos', equipoRoutes);

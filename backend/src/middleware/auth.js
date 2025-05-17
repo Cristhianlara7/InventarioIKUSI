@@ -15,7 +15,13 @@ const auth = async (req, res, next) => {
         req.usuario = usuario;
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Por favor autentícate' });
+        if (error.name === 'JsonWebTokenError') {
+            res.status(401).json({ message: 'Token inválido' });
+        } else if (error.name === 'TokenExpiredError') {
+            res.status(401).json({ message: 'Token expirado' });
+        } else {
+            res.status(401).json({ message: 'Por favor autentícate' });
+        }
     }
 };
 

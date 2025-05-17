@@ -154,31 +154,75 @@ export class AuthComponent {
   onSubmit() {
     if (this.authForm.valid) {
       if (this.isLoginMode) {
-        this.authService.login({
+        const credentials = {
           email: this.authForm.value.email,
           password: this.authForm.value.password
-        }).subscribe({
-          next: () => this.router.navigate(['/dashboard']),
+        };
+        
+        this.authService.login(credentials).subscribe({
+          next: (response) => {
+            console.log('Respuesta del servidor:', response);
+            if (response && response.token) {
+              console.log('Inicio de sesión exitoso');
+              // Verificamos que la autenticación sea exitosa antes de navegar
+              if (this.authService.isAuthenticated()) {
+                this.router.navigate(['/dashboard'])
+                  .then(() => {
+                    console.log('Navegación completada');
+                    // Emitimos un evento de inicio de sesión exitoso
+                    window.dispatchEvent(new CustomEvent('loginSuccess'));
+                  })
+                  .catch(err => {
+                    console.error('Error en la navegación:', err);
+                    alert('Error al navegar al dashboard');
+                  });
+              } else {
+                console.error('Error: Autenticación fallida');
+                alert('Error: No se pudo iniciar sesión correctamente');
+              }
+            } else {
+              console.error('Respuesta inválida:', response);
+              alert('Error: No se recibió un token válido');
+            }
+          },
           error: (error) => {
+            console.error('Error completo:', error);
             let mensajeError = 'Error al iniciar sesión: ';
             if (error.error?.message) {
               mensajeError += error.error.message;
-            } else {
+            } else if (error.status === 401) {
               mensajeError += 'Credenciales inválidas';
+            } else if (error.status === 404) {
+              mensajeError += 'Usuario no encontrado';
+            } else {
+              mensajeError += 'Error de conexión con el servidor';
             }
             alert(mensajeError);
           }
         });
       } else {
-        // Lógica de registro
+        // Lógica de registro mejorada
         this.authService.register(this.authForm.value).subscribe({
-          next: () => {
+          next: (response) => {
+            alert('Usuario registrado exitosamente');
             this.isLoginMode = true;
             this.authForm.reset();
           },
-          error: (error) => console.error('Error de registro:', error)
+          error: (error) => {
+            let mensajeError = 'Error en el registro: ';
+            if (error.error?.message) {
+              mensajeError += error.error.message;
+            } else if (error.status === 400) {
+              mensajeError += 'El email ya está registrado';
+            } else {
+              mensajeError += 'Error al crear el usuario';
+            }
+            alert(mensajeError);
+          }
         });
       }
+    } else {
+      alert('Por favor, complete todos los campos correctamente');
     }
-  }
+}
 }

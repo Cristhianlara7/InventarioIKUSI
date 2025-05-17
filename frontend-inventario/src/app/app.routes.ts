@@ -47,6 +47,11 @@ export const routes: Routes = [
                 path: 'equipos/asignar',
                 loadComponent: () => import('./components/equipos/asignar-equipo.component')
                   .then(m => m.AsignarEquipoComponent)
+            },
+            {
+                path: 'tipos-equipo',
+                loadComponent: () => import('./components/tipos-equipo/tipos-equipo.component')
+                  .then(m => m.TiposEquipoComponent)
             }
         ]
     }

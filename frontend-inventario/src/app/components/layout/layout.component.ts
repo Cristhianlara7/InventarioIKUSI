@@ -13,8 +13,10 @@ import { AuthService } from '../../services/auth.service';
         <div class="nav-links">
           <a routerLink="/dashboard">Dashboard</a>
           <a routerLink="/equipos">Equipos</a>
+          <a routerLink="/tipos-equipo">Tipos de Equipo</a>
           <a routerLink="/usuarios">Usuarios</a>
           <a routerLink="/reportes">Reportes</a>
+          <a routerLink="/perfil">Mi Perfil</a>
           <button class="logout-btn" (click)="logout()">Cerrar Sesión</button>
         </div>
       </nav>
