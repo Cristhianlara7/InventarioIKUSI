@@ -253,9 +253,9 @@ export class UsuariosComponent implements OnInit {
           });
       } else {
         // Si estamos creando un nuevo usuario
-        this.http.post(`${environment.apiUrl}/usuarios`, usuarioData)
+        this.http.post(`${environment.apiUrl}/usuarios/register`, usuarioData)
           .subscribe({
-            next: () => {
+            next: (response) => {
               alert('Usuario creado exitosamente');
               this.cargarUsuarios();
               this.formularioVisible = false;
@@ -264,13 +264,45 @@ export class UsuariosComponent implements OnInit {
             error: (error) => {
               console.error('Error al crear usuario:', error);
               let mensajeError = 'Error al crear el usuario: ';
-              if (error.error?.message) {
-                mensajeError += error.error.message;
+              
+              // Manejar diferentes tipos de errores
+              if (error.status === 400) {
+                if (error.error?.message?.includes('duplicate key')) {
+                  mensajeError = 'El correo electrónico ya está registrado. Por favor, use otro correo.';
+                } else if (error.error?.message) {
+                  mensajeError = error.error.message;
+                }
+              } else if (error.status === 422) {
+                mensajeError = 'Los datos proporcionados no son válidos. Por favor, verifique la información.';
+              } else if (error.status === 500) {
+                mensajeError = 'Error interno del servidor. Por favor, intente más tarde.';
+              } else {
+                mensajeError += 'No se pudo completar el registro. Por favor, intente nuevamente.';
               }
+              
               alert(mensajeError);
             }
           });
       }
+    } else {
+      // Mostrar errores de validación del formulario
+      let mensajesError = [];
+      
+      if (this.usuarioForm.get('nombre')?.hasError('required')) {
+        mensajesError.push('El nombre es requerido');
+      }
+      
+      if (this.usuarioForm.get('email')?.hasError('required')) {
+        mensajesError.push('El correo electrónico es requerido');
+      } else if (this.usuarioForm.get('email')?.hasError('email')) {
+        mensajesError.push('El formato del correo electrónico no es válido');
+      }
+      
+      if (this.usuarioForm.get('password')?.hasError('required')) {
+        mensajesError.push('La contraseña es requerida');
+      }
+      
+      alert(mensajesError.join('\n'));
     }
   }
 

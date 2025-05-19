@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   register(userData: { nombre: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData)
+    return this.http.post(`${this.apiUrl}/usuarios/registro`, userData)
       .pipe(
         tap((response: any) => {
           if (response.token) {
