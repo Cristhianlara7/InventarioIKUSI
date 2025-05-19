@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
     <div class="empleados-container">
       <div class="header">
         <h2>Gestión de Empleados</h2>
-        <button class="btn-primary" (click)="mostrarFormulario()">Nuevo Empleado</button>
+        <button class="btn-primary" id="nuevo" (click)="mostrarFormulario()">Nuevo Empleado</button>
       </div>
 
       <!-- Formulario de Empleado -->
@@ -133,6 +133,19 @@ import { environment } from '../../../environments/environment';
       padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
+    }
+      .btn-primary {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
     }
   `]
 })

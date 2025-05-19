@@ -5,6 +5,11 @@ const tipoEquipoSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    descripcion: {
+        type: String,
+        required: false,
+        default: 'Sin descripción'
     }
 });
 

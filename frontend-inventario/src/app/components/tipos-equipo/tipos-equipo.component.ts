@@ -166,7 +166,7 @@ export class TiposEquipoComponent implements OnInit {
   ) {
     this.tipoEquipoForm = this.fb.group({
       nombre: ['', Validators.required],
-      descripcion: ['', Validators.required]
+      descripcion: [''] // Agregamos el campo descripción
     });
   }
 
@@ -177,6 +177,7 @@ export class TiposEquipoComponent implements OnInit {
   cargarTiposEquipo() {
     this.tipoEquipoService.getTiposEquipo().subscribe({
       next: (tipos) => {
+        console.log('Tipos de equipo cargados:', tipos);
         this.tiposEquipo = tipos;
       },
       error: (error) => {

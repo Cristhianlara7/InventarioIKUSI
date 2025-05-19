@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -70,18 +71,20 @@ export class AuthService {
     return this.userSubject.asObservable();
   }
 
-
-  cambiarPassword(passwordData: {
-    passwordActual: string,
-    nuevaPassword: string,
-    confirmarPassword: string
-  }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/cambiar-password`, passwordData)
-      .pipe(
-        tap(() => {
-          this.logout();
-        })
-      );
+  cambiarPassword(datos: { passwordActual: string; nuevaPassword: string }): Observable<any> {
+    const userId = this.userSubject.value?._id;
+    if (!userId) {
+      throw new Error('Usuario no autenticado');
+    }
+    return this.http.post(`${this.apiUrl}/usuarios/cambiar-password`, {
+      ...datos,
+      userId
+    }).pipe(
+      tap(response => {
+        console.log('Respuesta cambio contraseña:', response);
+        // No cerramos sesión automáticamente para mejor experiencia de usuario
+      })
+    );
   }
 
   getUsers(): Observable<any> {

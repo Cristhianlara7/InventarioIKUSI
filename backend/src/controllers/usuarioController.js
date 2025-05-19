@@ -119,6 +119,31 @@ const usuarioController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+    // Agregar el método cambiarPassword dentro del objeto usuarioController
+    cambiarPassword: async (req, res) => {
+        try {
+            const { passwordActual, nuevaPassword } = req.body;
+            const userId = req.usuario._id; // Obtenemos el ID del usuario autenticado
+
+            const usuario = await Usuario.findById(userId);
+            if (!usuario) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+
+            const isMatch = await usuario.comparePassword(passwordActual);
+            if (!isMatch) {
+                return res.status(400).json({ message: 'La contraseña actual es incorrecta' });
+            }
+
+            usuario.password = nuevaPassword;
+            await usuario.save();
+
+            res.json({ message: 'Contraseña actualizada exitosamente' });
+        } catch (error) {
+            console.error('Error al cambiar la contraseña:', error);
+            res.status(500).json({ message: 'Error al cambiar la contraseña' });
+        }
     }
 };
 

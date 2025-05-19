@@ -5,8 +5,14 @@ const equipoController = {
     getAll: async (req, res) => {
         try {
             const equipos = await Equipo.find()
-                .populate('tipoEquipo')
-                .populate('usuarioAsignado');
+                .populate({
+                    path: 'tipoEquipo',
+                    select: 'nombre descripcion' // Asegurarnos de seleccionar ambos campos
+                })
+                .populate({
+                    path: 'usuarioAsignado',
+                    select: 'nombres apellidos email departamento'
+                });
             res.json(equipos);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -152,77 +158,47 @@ const equipoController = {
     },
     asignarEquipo: async (req, res) => {
         try {
-            const equipoId = req.params.id;  // Cambiado de req.params.equipoId
-            const { usuarioId } = req.body;
-    
-            if (!equipoId || !usuarioId) {
-                return res.status(400).json({
-                    message: 'Se requieren el ID del equipo y del usuario'
-                });
-            }
-    
-            const equipo = await Equipo.findByIdAndUpdate(
-                equipoId,
-                { usuarioAsignado: usuarioId },
-                { 
-                    new: true,
-                    runValidators: true 
-                }
-            ).populate('usuarioAsignado');
-    
-            if (!equipo) {
-                return res.status(404).json({
-                    message: 'Equipo no encontrado'
-                });
-            }
-    
-            res.json(equipo);
-        } catch (error) {
-            console.error('Error al asignar equipo:', error);
-            res.status(500).json({
-                message: 'Error al asignar el equipo',
-                error: error.message
-            });
-        }
-    },
-    /*asignarUsuario: async (req, res) => {
-        try {
             const equipoId = req.params.id;
-            const { usuarioId } = req.body;
-    
-            if (!equipoId || !usuarioId) {
-                return res.status(400).json({ 
-                    message: 'Se requieren el ID del equipo y del usuario' 
-                });
+            const { empleadoId } = req.body;
+            
+            if (!equipoId || !empleadoId) {
+                return res.status(400).json({ message: 'Se requieren el ID del equipo y del empleado' });
             }
-    
-            // Actualizar directamente usando findByIdAndUpdate
+
+            const equipo = await Equipo.findById(equipoId);
+            if (!equipo) {
+                return res.status(404).json({ message: 'Equipo no encontrado' });
+            }
+            
+            // Verificar si el equipo ya está asignado
+            if (equipo.usuarioAsignado) {
+                return res.status(400).json({ message: 'El equipo ya está asignado a otro empleado' });
+            }
+            
+            // Actualizar el equipo usando findByIdAndUpdate para asegurar una actualización atómica
             const equipoActualizado = await Equipo.findByIdAndUpdate(
                 equipoId,
-                { usuarioAsignado: usuarioId },
-                { 
-                    new: true,
-                    runValidators: true
-                }
-            ).populate('tipoEquipo')
-              .populate('usuarioAsignado');
-    
+                { usuarioAsignado: empleadoId },
+                { new: true }
+            ).populate('usuarioAsignado');
+            
             if (!equipoActualizado) {
-                return res.status(404).json({ 
-                    message: 'Equipo no encontrado' 
-                });
+                return res.status(500).json({ message: 'Error al actualizar el equipo' });
             }
-    
-            res.json(equipoActualizado);
+            
+            res.json({ 
+                message: 'Equipo asignado exitosamente', 
+                equipo: equipoActualizado 
+            });
         } catch (error) {
-            console.error('Error al asignar usuario:', error);
+            console.error('Error al asignar equipo:', error);
             res.status(500).json({ 
-                message: 'Error al asignar el usuario al equipo',
+                message: 'Error al asignar el equipo',
                 error: error.message 
             });
         }
-    },*/
-    
-};   
+    },
+};  
 
 module.exports = equipoController;
+

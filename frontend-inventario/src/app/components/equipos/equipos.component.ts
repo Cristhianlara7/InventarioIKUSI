@@ -376,6 +376,14 @@ import { environment } from '../../../environments/environment';
       background-color: #dc3545;
       color: white;
     }
+      .btn-desasignar {
+  background-color: #ffc107;
+  color: black;
+}
+
+.btn-desasignar:hover {
+  background-color: #e0a800;
+}
 
     .btn-cancelar:hover {
       background-color: #c82333;
@@ -410,11 +418,15 @@ import { environment } from '../../../environments/environment';
         <tbody>
           <tr *ngFor="let equipo of equiposFiltrados">
             <td>{{equipo.codigo}}</td>
-            <td>{{equipo.tipoEquipo?.nombre}}</td>
+            <td>{{equipo.tipoEquipo?.nombre}} - {{equipo.tipoEquipo?.descripcion || 'Sin descripción'}}</td>
             <td>{{equipo.marca}}</td>
             <td>{{equipo.modelo}}</td>
             <td>{{equipo.serial}}</td>
-            <td>{{equipo.usuarioAsignado?.nombre || 'No asignado'}}</td>
+            <td>
+              {{equipo.empleadoAsignado ? 
+                (equipo.empleadoAsignado.nombres + ' ' + equipo.empleadoAsignado.apellidos) : 
+                'No asignado'}}
+            </td>
             <td class="acciones">
               <button class="btn btn-actualizar" (click)="editarEquipo(equipo)">
                 Actualizar
@@ -422,8 +434,11 @@ import { environment } from '../../../environments/environment';
               <button class="btn btn-eliminar" (click)="eliminarEquipo(equipo)">
                 Eliminar
               </button>
-              <button class="btn btn-asignar" (click)="asignarEquipo(equipo)">
+              <button class="btn btn-asignar" (click)="asignarEquipo(equipo)" *ngIf="!equipo.empleadoAsignado">
                 Asignar
+              </button>
+              <button class="btn btn-desasignar" (click)="desasignarEquipo(equipo)" *ngIf="equipo.empleadoAsignado">
+                Desasignar
               </button>
               <button class="btn btn-detalles" (click)="verDetalles(equipo)">
                 Ver Detalles
@@ -497,9 +512,9 @@ import { environment } from '../../../environments/environment';
         </form>
       </div>
     </div>
-  `,
-  
-})
+`,
+  })
+
 export class EquiposComponent implements OnInit {
   equipoForm: FormGroup;
   equipos: any[] = [];
@@ -534,7 +549,19 @@ export class EquiposComponent implements OnInit {
   cargarEquipos() {
     this.http.get(`${environment.apiUrl}/equipos`).subscribe((data: any) => {
       this.equipos = data;
-      this.equiposFiltrados = data;
+      this.equiposFiltrados = this.equipos.map(equipo => {
+        return {
+          ...equipo,
+          tipoEquipo: {
+            ...equipo.tipoEquipo,
+            descripcion: equipo.tipoEquipo?.descripcion || 'Sin descripción'
+          },
+          empleadoAsignado: equipo.empleadoAsignado ? {
+            nombres: equipo.empleadoAsignado.nombres,
+            apellidos: equipo.empleadoAsignado.apellidos
+          } : null
+        };
+      });
     });
   }
 
@@ -646,7 +673,7 @@ export class EquiposComponent implements OnInit {
       ${equipo.memoriaRam ? 'Memoria RAM: ' + equipo.memoriaRam : ''}
       ${equipo.discoDuro ? 'Disco Duro: ' + equipo.discoDuro : ''}
       ${equipo.procesador ? 'Procesador: ' + equipo.procesador : ''}
-    `;
+    `
     alert(detalles); // Por ahora usamos alert, pero se podría mejorar con un modal
   }
   esComputador(): boolean {
@@ -676,4 +703,27 @@ export class EquiposComponent implements OnInit {
       equipo.modelo?.toLowerCase().includes(termino)
     );
   }
+
+  desasignarEquipo(equipo: any) {
+    if (confirm('¿Está seguro de desasignar este equipo?')) {
+      this.http.post(`${environment.apiUrl}/equipos/${equipo._id}/desasignar`, {})
+        .subscribe({
+          next: () => {
+            alert('Equipo desasignado exitosamente');
+            this.cargarEquipos();
+          },
+          error: (error) => {
+            console.error('Error al desasignar equipo:', error);
+            let mensajeError = 'Error al desasignar el equipo: ';
+            if (error.error?.message) {
+              mensajeError += error.error.message;
+            } else {
+              mensajeError += 'Error de conexión con el servidor';
+            }
+            alert(mensajeError);
+          }
+        });
+    }
+  }
 }
+

@@ -129,7 +129,7 @@ export class PerfilComponent implements OnInit {
       passwordActual: ['', Validators.required],
       nuevaPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmarPassword: ['', Validators.required]
-    }, { validator: this.passwordMatchValidator });
+    }, { validator: this.passwordMatchValidator.bind(this) }); // Agregamos .bind(this)
   }
 
   ngOnInit() {
@@ -138,9 +138,15 @@ export class PerfilComponent implements OnInit {
     if (userStr) {
       try {
         const userLocal = JSON.parse(userStr);
+        // Modificar para usar _id en lugar de id
         if (this.isValidUser(userLocal)) {
-          this.usuario = userLocal;
-          console.log('Usuario válido obtenido del localStorage:', userLocal);
+          this.usuario = {
+            id: userLocal.id, // Convertir _id a id
+            nombre: userLocal.nombre,
+            email: userLocal.email,
+            rol: userLocal.rol
+          };
+          console.log('Usuario válido obtenido del localStorage:', this.usuario);
         } else {
           console.warn('Estructura de usuario inválida en localStorage');
         }
@@ -149,11 +155,17 @@ export class PerfilComponent implements OnInit {
       }
     }
     
+    // Actualizar la validación del usuario
     this.authService.getUser().subscribe({
       next: (user) => {
         console.log('Usuario obtenido del servicio:', user);
-        if (this.isValidUser(user)) {
-          this.usuario = user;
+        if (user && user._id) {
+          this.usuario = {
+            id: user._id,
+            nombre: user.nombre,
+            email: user.email,
+            rol: user.rol
+          };
         } else {
           console.warn('Estructura de usuario inválida del servidor');
         }
@@ -166,43 +178,59 @@ export class PerfilComponent implements OnInit {
 
   private isValidUser(user: any): user is Usuario {
     return user && 
-           typeof user.id === 'string' &&
+           (typeof user.id === 'string' || typeof user._id === 'string') &&
            typeof user.nombre === 'string' && 
            typeof user.email === 'string' && 
            typeof user.rol === 'string';
   }
 
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('nuevaPassword')?.value === g.get('confirmarPassword')?.value
-      ? null : {'mismatch': true};
+  cambiarPassword() {
+    if (this.passwordForm.invalid) {
+      return;
+    }
+
+    const formValues = this.passwordForm.value;
+    
+    if (formValues.nuevaPassword !== formValues.confirmarPassword) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+
+    if (!this.usuario?.id) {
+      alert('Error: Usuario no autenticado');
+      return;
+    }
+
+    const datos = {
+      passwordActual: formValues.passwordActual,
+      nuevaPassword: formValues.nuevaPassword,
+      userId: this.usuario.id
+    };
+
+    this.authService.cambiarPassword(datos).subscribe({
+      next: (response: any) => {
+        alert('Contraseña actualizada exitosamente');
+        this.passwordForm.reset();
+      },
+      error: (error) => {
+        console.error('Error al cambiar la contraseña:', error);
+        const mensajeError = error.error?.message || 'Error al cambiar la contraseña';
+        alert(mensajeError);
+      }
+    });
   }
 
-  cambiarPassword() {
-    if (this.passwordForm.valid) {
-      this.authService.cambiarPassword(this.passwordForm.value).subscribe({
-        next: () => {
-          alert('Contraseña actualizada exitosamente');
-          this.passwordForm.reset();
-        },
-        error: (error) => {
-          let mensajeError = 'Error al cambiar la contraseña: ';
-          if (error.error?.message) {
-            mensajeError += error.error.message;
-          } else if (error.message) {
-            mensajeError += error.message;
-          } else {
-            mensajeError += 'Error desconocido';
-          }
-          alert(mensajeError);
-        }
-      });
-    } else {
-      Object.keys(this.passwordForm.controls).forEach(key => {
-        const control = this.passwordForm.get(key);
-        if (control?.invalid) {
-          control.markAsTouched();
-        }
-      });
+  // Agregar el método passwordMatchValidator
+  private passwordMatchValidator(group: FormGroup): {[key: string]: any} | null {
+    const nuevaPassword = group.get('nuevaPassword');
+    const confirmarPassword = group.get('confirmarPassword');
+
+    if (!nuevaPassword || !confirmarPassword) {
+      return null;
     }
+
+    return nuevaPassword.value === confirmarPassword.value
+      ? null
+      : { 'mismatch': true };
   }
 }

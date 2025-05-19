@@ -15,14 +15,15 @@ import { ActivatedRoute, Router } from '@angular/router';  // Agregar Router aqu
     <div class="asignar-container">
       <h2>Asignar Equipo</h2>
       
-      <div class="usuarios-list">
-        <h3>Usuarios Disponibles</h3>
-        <div class="usuario-grid">
-          <div *ngFor="let usuario of usuarios" class="usuario-card">
-            <h4>{{ usuario.nombre }}</h4>
-            <p>Email: {{ usuario.email }}</p>
-            <button (click)="asignarEquipo(usuario._id)" class="btn-asignar">
-              Seleccionar Usuario
+      <div class="empleados-list">
+        <h3>Empleados Disponibles</h3>
+        <div class="empleado-grid">
+          <div *ngFor="let empleado of empleados" class="empleado-card">
+            <h4>{{ empleado.nombres }} {{ empleado.apellidos }}</h4>
+            <p>Email: {{ empleado.email }}</p>
+            <p>Departamento: {{ empleado.departamento }}</p>
+            <button (click)="asignarEquipo(empleado._id)" class="btn-asignar">
+              Seleccionar Empleado
             </button>
           </div>
         </div>
@@ -96,13 +97,13 @@ import { ActivatedRoute, Router } from '@angular/router';  // Agregar Router aqu
     .equipos-asignados {
       margin-top: 2rem;
     }
-    .usuario-grid {
+    .empleado-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
     }
-    .usuario-card {
+    .empleado-card {
       background: white;
       padding: 1.5rem;
       border-radius: 8px;
@@ -126,7 +127,7 @@ import { ActivatedRoute, Router } from '@angular/router';  // Agregar Router aqu
 export class AsignarEquipoComponent implements OnInit {
   equiposDisponibles: any[] = [];
   equiposAsignados: any[] = [];
-  usuarios: any[] = [];
+  empleados: any[] = [];  // Cambiado de usuarios a empleados
   usuarioId: string = '';
   equipoId: string = '';
 
@@ -135,19 +136,62 @@ export class AsignarEquipoComponent implements OnInit {
     private authService: AuthService,
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router  // Agregar Router
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.equipoId = params['equipoId'];
+      if (!this.equipoId) {
+        console.error('No se proporcionó ID del equipo');
+        alert('Error: No se proporcionó ID del equipo');
+        this.router.navigate(['/equipos']);
+        return;
+      }
     });
-    this.cargarUsuarios();
+    this.cargarEmpleados();
   }
 
-  cargarUsuarios() {
-    this.http.get(`${environment.apiUrl}/usuarios`).subscribe((data: any) => {
-      this.usuarios = data;
+  asignarEquipo(empleadoId: string) {
+    if (!this.equipoId || !empleadoId) {
+        alert('Error: Se requieren tanto el ID del equipo como el ID del empleado');
+        return;
+    }
+
+    this.http.post(`${environment.apiUrl}/equipos/${this.equipoId}/asignar-equipo`, {
+        empleadoId: empleadoId
+    }).subscribe({
+        next: (response: any) => {
+            console.log('Equipo asignado:', response);
+            if (response && response.message) {
+                alert(response.message);
+            } else {
+                alert('Equipo asignado exitosamente');
+            }
+            // Redirigir después de una asignación exitosa
+            this.router.navigate(['/equipos']).then(() => {
+                // Recargar la página para asegurar que se muestren los datos actualizados
+                window.location.reload();
+            });
+        },
+        error: (error) => {
+            console.error('Error al asignar equipo:', error);
+            let mensajeError = 'Error al asignar el equipo: ';
+            
+            if (error.error?.message) {
+                mensajeError += error.error.message;
+            } else {
+                mensajeError += 'No se pudo completar la asignación';
+            }
+            
+            alert(mensajeError);
+        }
+    });
+}
+
+  cargarEmpleados() {  // Nuevo método para cargar empleados
+    this.http.get(`${environment.apiUrl}/empleados`).subscribe((data: any) => {
+      this.empleados = data;
     });
   }
 
@@ -158,49 +202,6 @@ export class AsignarEquipoComponent implements OnInit {
       });
     }
   }
-
-  asignarEquipo(usuarioId: string) {
-    if (!this.equipoId) {
-      alert('No se ha seleccionado ningún equipo para asignar');
-      return;
-    }
-
-    if (!usuarioId) {
-      alert('No se ha seleccionado un usuario válido');
-      return;
-    }
-
-    console.log('Intentando asignar equipo:', {
-      equipoId: this.equipoId,
-      usuarioId: usuarioId,
-      url: `${environment.apiUrl}/equipos/${this.equipoId}/asignar-equipo`
-    });
-
-    this.equipoService.asignarEquipo(this.equipoId, usuarioId).subscribe({
-      next: (response) => {
-        console.log('Respuesta del servidor:', response);
-        alert('Equipo asignado exitosamente');
-        // Redirigir al listado de equipos
-        this.router.navigate(['/equipos']);
-      },
-      error: (error) => {
-        console.error('Error completo:', error);
-        let mensajeError = 'Error al asignar el equipo. ';
-        
-        if (error.status === 404) {
-          mensajeError += `La ruta de asignación no existe en el servidor. URL: /equipos/${this.equipoId}/asignar-equipo`;
-        } else if (error.error && error.error.message) {
-          mensajeError += error.error.message;
-        } else {
-          mensajeError += 'Verifique la conexión con el servidor.';
-        }
-        
-        console.error('URL utilizada:', `${environment.apiUrl}/equipos/${this.equipoId}/asignar-equipo`);
-        console.error('Datos enviados:', { equipoId: this.equipoId, usuarioId });
-        alert(mensajeError);
-      }
-    });
-}
 
   devolverEquipo(equipoId: string) {
     const motivo = prompt('Por favor, ingrese el motivo de la devolución (formateo, cambio de batería, etc.):');
