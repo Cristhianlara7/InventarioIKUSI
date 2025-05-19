@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';  // Add this import
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],  // Add CommonModule here
   template: `
     <div class="app-container">
       <nav class="navbar">
@@ -13,10 +15,12 @@ import { AuthService } from '../../services/auth.service';
         <div class="nav-links">
           <a routerLink="/dashboard">Dashboard</a>
           <a routerLink="/equipos">Equipos</a>
-          <a routerLink="/tipos-equipo">Tipos de Equipo</a>
-          <a routerLink="/usuarios">Usuarios</a>
-          <a routerLink="/empleados">Empleados</a>
-          <a routerLink="/reportes">Reportes</a>
+          <ng-container *ngIf="!esVisitante()">
+            <a routerLink="/tipos-equipo">Tipos de Equipo</a>
+            <a routerLink="/usuarios">Usuarios</a>
+            <a routerLink="/empleados">Empleados</a>
+            <a routerLink="/reportes">Reportes</a>
+          </ng-container>
           <a routerLink="/perfil">Mi Perfil</a>
           <button class="logout-btn" (click)="logout()">Cerrar Sesión</button>
         </div>
@@ -82,6 +86,15 @@ export class LayoutComponent {
         private authService: AuthService,
         private router: Router
     ) {}
+    
+    esVisitante(): boolean {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            return user.rol === 'visitante';
+        }
+        return false;
+    }
     
     logout() {
         this.authService.logout();

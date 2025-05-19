@@ -397,7 +397,7 @@ import { environment } from '../../../environments/environment';
         [(ngModel)]="searchTerm"
         (ngModelChange)="filtrarEquipos()"
       >
-      <button class="btn btn-nuevo" (click)="agregarEquipo()">
+      <button class="btn btn-nuevo" (click)="agregarEquipo()" *ngIf="!esVisitante()">
         Nuevo Equipo
       </button>
     </div>
@@ -428,18 +428,20 @@ import { environment } from '../../../environments/environment';
                 'No asignado'}}
             </td>
             <td class="acciones">
-              <button class="btn btn-actualizar" (click)="editarEquipo(equipo)">
-                Actualizar
-              </button>
-              <button class="btn btn-eliminar" (click)="eliminarEquipo(equipo)">
-                Eliminar
-              </button>
-              <button class="btn btn-asignar" (click)="asignarEquipo(equipo)" *ngIf="!equipo.empleadoAsignado">
-                Asignar
-              </button>
-              <button class="btn btn-desasignar" (click)="desasignarEquipo(equipo)" *ngIf="equipo.empleadoAsignado">
-                Desasignar
-              </button>
+              <ng-container *ngIf="!esVisitante()">
+                <button class="btn btn-actualizar" (click)="editarEquipo(equipo)">
+                  Actualizar
+                </button>
+                <button class="btn btn-eliminar" (click)="eliminarEquipo(equipo)">
+                  Eliminar
+                </button>
+                <button class="btn btn-asignar" (click)="asignarEquipo(equipo)" *ngIf="!equipo.empleadoAsignado">
+                  Asignar
+                </button>
+                <button class="btn btn-desasignar" (click)="desasignarEquipo(equipo)" *ngIf="equipo.empleadoAsignado">
+                  Desasignar
+                </button>
+              </ng-container>
               <button class="btn btn-detalles" (click)="verDetalles(equipo)">
                 Ver Detalles
               </button>
@@ -569,6 +571,14 @@ export class EquiposComponent implements OnInit {
     this.http.get(`${environment.apiUrl}/tipos-equipo`).subscribe((data: any) => {
       this.tiposEquipo = data;
     });
+  }
+  esVisitante(): boolean {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      return user.rol === 'visitante';
+    }
+    return false;
   }
 
   editarEquipo(equipo: any) {
@@ -726,4 +736,6 @@ export class EquiposComponent implements OnInit {
     }
   }
 }
+
+
 
