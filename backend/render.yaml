@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: inventarios-backend
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node src/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
