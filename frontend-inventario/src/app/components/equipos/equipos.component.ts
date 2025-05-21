@@ -57,6 +57,9 @@ import { Router } from '@angular/router';
                 </span>
               </td>
               <td class="acciones">
+                <button class="btn-detalles" (click)="mostrarDetalles(equipo)">
+                  <i class="fas fa-info-circle"></i> Ver Detalles
+                </button>
                 <button class="btn-actualizar" (click)="editarEquipo(equipo)">
                   <i class="fas fa-edit"></i> Editar
                 </button>
@@ -128,6 +131,54 @@ import { Router } from '@angular/router';
         </form>
       </div>
     </div>
+
+    <!-- Modal de Detalles -->
+      <div class="modal" *ngIf="modalVisible">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Detalles del Equipo</h2>
+            <button class="btn-cerrar" (click)="cerrarModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="detalle-item">
+              <strong>Código:</strong> {{equipoSeleccionadoDetalles?.codigo}}
+            </div>
+            <div class="detalle-item">
+              <strong>Tipo:</strong> {{equipoSeleccionadoDetalles?.tipoEquipo?.nombre}}
+            </div>
+            <div class="detalle-item">
+              <strong>Marca:</strong> {{equipoSeleccionadoDetalles?.marca}}
+            </div>
+            <div class="detalle-item">
+              <strong>Modelo:</strong> {{equipoSeleccionadoDetalles?.modelo}}
+            </div>
+            <div class="detalle-item">
+              <strong>Serial:</strong> {{equipoSeleccionadoDetalles?.serial}}
+            </div>
+            <div class="detalle-item">
+              <strong>Estado:</strong> {{determinarEstado(equipoSeleccionadoDetalles)}}
+            </div>
+            <div class="detalle-item" *ngIf="equipoSeleccionadoDetalles?.empleadoAsignado">
+              <strong>Empleado Asignado:</strong> 
+              {{equipoSeleccionadoDetalles?.empleadoAsignado?.nombres}} 
+              {{equipoSeleccionadoDetalles?.empleadoAsignado?.apellidos}}
+            </div>
+            
+            <!-- Campos específicos para computadores -->
+            <ng-container *ngIf="esComputadorDetalles(equipoSeleccionadoDetalles)">
+              <div class="detalle-item">
+                <strong>Memoria RAM:</strong> {{equipoSeleccionadoDetalles?.memoriaRam}}
+              </div>
+              <div class="detalle-item">
+                <strong>Disco Duro:</strong> {{equipoSeleccionadoDetalles?.discoDuro}}
+              </div>
+              <div class="detalle-item">
+                <strong>Procesador:</strong> {{equipoSeleccionadoDetalles?.procesador}}
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
   `,
   styles: [`
     .equipos-container {
@@ -259,6 +310,13 @@ import { Router } from '@angular/router';
       padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .btn-detalles:hover {
+      background-color: #5a6268;
     }
     .btn-desasignar {
       background-color: #ffc107;
@@ -382,7 +440,7 @@ import { Router } from '@angular/router';
       cursor: pointer;
     }
 
-    .btn-detalles {
+      .btn-detalles {
       background-color: #6c757d;
       color: white;
       border: none;
@@ -432,6 +490,99 @@ import { Router } from '@angular/router';
     .acciones button i {
       font-size: 14px;
     }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #333;
+      font-size: 1.5rem;
+    }
+
+    .btn-cerrar {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 5px;
+      line-height: 1;
+    }
+
+    .btn-cerrar:hover {
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 10px 0;
+    }
+
+    .detalle-item {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+    }
+
+    .detalle-item strong {
+      min-width: 150px;
+      color: #2a5298;
+      font-weight: 600;
+    }
+
+    .detalle-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Estilos para diferentes estados */
+    .estado-asignado {
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    
+    .estado-disponible {
+      color: #3498db;
+      font-weight: bold;
+    }
+    
+    .estado-enstock {
+      color: #f1c40f;
+      font-weight: bold;
+    }
+
   `]
 })
 export class EquiposComponent implements OnInit {
@@ -613,20 +764,8 @@ export class EquiposComponent implements OnInit {
       });
     }
   }
-
-  verDetalles(equipo: any) {
-    // Aquí puedes implementar la lógica para mostrar los detalles
-    // Por ejemplo, podrías abrir un modal o navegar a una ruta de detalles
-    alert(`
-      Detalles del Equipo:
-      Nombre: ${equipo.nombre}
-      Modelo: ${equipo.modelo}
-      Serial: ${equipo.serial}
-      Estado: ${equipo.estado}
-      Tipo: ${equipo.tipoEquipo?.nombre}
-    `);
-  }
-
+  
+  // El método mostrarDetalles ya está implementado correctamente
   agregarEquipo() {
     this.formularioVisible = true;
     this.equipoForm.reset();
@@ -642,5 +781,25 @@ export class EquiposComponent implements OnInit {
     this.equipoForm.reset();
     this.equipoSeleccionado = null;
   }
+
+  modalVisible = false;
+  equipoSeleccionadoDetalles: any = null;
+
+  mostrarDetalles(equipo: any) {
+    this.equipoSeleccionadoDetalles = equipo;
+    this.modalVisible = true;
+  }
+
+  cerrarModal() {
+    this.modalVisible = false;
+    this.equipoSeleccionadoDetalles = null;
+  }
+
+  esComputadorDetalles(equipo: any): boolean {
+    return equipo?.tipoEquipo?.nombre.toLowerCase() === 'computador';
+  }
+  
+  
+
 }
 
