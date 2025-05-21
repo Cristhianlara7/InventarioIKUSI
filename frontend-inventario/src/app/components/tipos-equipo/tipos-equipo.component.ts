@@ -12,7 +12,9 @@ import { TipoEquipoService } from '../../services/tipo-equipo.service';
     <div class="tipos-equipo-container">
       <div class="header">
         <h2>Gestión de Tipos de Equipo</h2>
-        <button class="btn-primary" (click)="mostrarFormulario()">Nuevo Tipo</button>
+        <button class="btn-primary" (click)="mostrarFormulario()">
+          <i class="fas fa-plus"></i> Nuevo Tipo
+        </button>
       </div>
 
       <!-- Formulario de Tipo de Equipo -->
@@ -56,8 +58,14 @@ import { TipoEquipoService } from '../../services/tipo-equipo.service';
               <td>{{tipo.nombre}}</td>
               <td>{{tipo.descripcion}}</td>
               <td>
-                <button class="btn-edit" (click)="editarTipoEquipo(tipo)">Editar</button>
-                <button class="btn-delete" (click)="eliminarTipoEquipo(tipo._id)">Eliminar</button>
+                <div class="acciones">
+                  <button class="btn-edit" (click)="editarTipoEquipo(tipo)">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button class="btn-delete" (click)="eliminarTipoEquipo(tipo._id)">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -118,39 +126,74 @@ import { TipoEquipoService } from '../../services/tipo-equipo.service';
       background: #f8f9fa;
       font-weight: bold;
     }
-    .btn-primary {
-      background: #2a5298;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
+    .acciones {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 8px;
-    }
+
     .btn-edit {
-      background: #2ecc71;
+      background-color: #17a2b8;
       color: white;
       border: none;
-      padding: 4px 8px;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
-      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+
     .btn-delete {
-      background: #e74c3c;
+      background-color: #dc3545;
       color: white;
       border: none;
-      padding: 4px 8px;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-edit:hover {
+      background-color: #138496;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
     }
   `]
 })

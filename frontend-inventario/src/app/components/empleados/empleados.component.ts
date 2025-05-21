@@ -13,7 +13,9 @@ import { environment } from '../../../environments/environment';
     <div class="empleados-container">
       <div class="header">
         <h2>Gestión de Empleados</h2>
-        <button class="btn-primary" id="nuevo" (click)="mostrarFormulario()">Nuevo Empleado</button>
+        <button class="btn-primary" (click)="mostrarFormulario()">
+          <i class="fas fa-plus"></i> Nuevo Empleado
+        </button>
       </div>
 
       <!-- Formulario de Empleado -->
@@ -36,14 +38,18 @@ import { environment } from '../../../environments/environment';
             <input type="text" formControlName="departamento">
           </div>
           <div class="form-buttons">
-            <button type="submit" class="btn-primary">Guardar</button>
-            <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+            <button type="submit" class="btn-save" [disabled]="!empleadoForm.valid">
+              <i class="fas fa-save"></i> {{ empleadoSeleccionado ? 'Actualizar' : 'Guardar' }}
+            </button>
+            <button type="button" class="btn-cancel" (click)="cancelar()">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
           </div>
         </form>
       </div>
 
       <!-- Lista de Empleados -->
-      <div class="empleados-list">
+      <div class="empleados-list" *ngIf="!formularioVisible">
         <table>
           <thead>
             <tr>
@@ -61,8 +67,14 @@ import { environment } from '../../../environments/environment';
               <td>{{empleado.email}}</td>
               <td>{{empleado.departamento}}</td>
               <td>
-                <button class="btn-editar" (click)="editarEmpleado(empleado)">Editar</button>
-                <button class="btn-eliminar" (click)="eliminarEmpleado(empleado._id)">Eliminar</button>
+                <div class="acciones">
+                  <button class="btn-edit" (click)="editarEmpleado(empleado)">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button class="btn-delete" (click)="eliminarEmpleado(empleado._id)">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -117,35 +129,114 @@ import { environment } from '../../../environments/environment';
       background-color: #f8f9fa;
       font-weight: 600;
     }
-    .btn-editar {
-      background-color: #28a745;
+    .acciones {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-edit {
+      background-color: #17a2b8;
       color: white;
       border: none;
       padding: 6px 12px;
       border-radius: 4px;
-      margin-right: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    .btn-eliminar {
+
+    .btn-delete {
       background-color: #dc3545;
       color: white;
       border: none;
       padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-      .btn-primary {
+
+    .btn-edit:hover {
+      background-color: #138496;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    .btn-primary {
       background-color: #007bff;
       color: white;
-      padding: 8px 16px;
       border: none;
+      padding: 8px 16px;
       border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .btn-primary:hover {
       background-color: #0056b3;
+    }
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-save {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-save:hover {
+      background-color: #218838;
+    }
+
+    .btn-save:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-cancel:hover {
+      background-color: #5a6268;
+    }
+
+    .form-container {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      max-width: 600px;
+      margin: 0 auto;
     }
   `]
 })

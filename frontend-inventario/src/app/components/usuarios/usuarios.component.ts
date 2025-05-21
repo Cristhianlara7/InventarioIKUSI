@@ -13,7 +13,9 @@ import { environment } from '../../../environments/environment';
     <div class="usuarios-container">
       <div class="header">
         <h2>Gestión de Usuarios</h2>
-        <button class="btn-nuevo" (click)="mostrarFormulario()">Nuevo</button>
+        <button class="btn-primary" (click)="mostrarFormulario()">
+          <i class="fas fa-plus"></i> Nuevo Usuario
+        </button>
       </div>
 
       <!-- Formulario de Usuario -->
@@ -61,9 +63,15 @@ import { environment } from '../../../environments/environment';
               <td>{{usuario.nombre}}</td>
               <td>{{usuario.email}}</td>
               <td>{{usuario.rol}}</td>
-              <td class="acciones">
-                <button class="btn-editar" (click)="editarUsuario(usuario)">Editar</button>
-                <button class="btn-eliminar" (click)="eliminarUsuario(usuario._id)">Eliminar</button>
+              <td>
+                <div class="acciones">
+                  <button class="btn-edit" (click)="editarUsuario(usuario)">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button class="btn-delete" (click)="eliminarUsuario(usuario._id)">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -146,9 +154,51 @@ import { environment } from '../../../environments/environment';
       font-weight: 600;
     }
 
-    .acciones {
-      display: flex;
-      gap: 8px;
+  .acciones {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-edit {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn-edit:hover {
+    background-color: #138496;
+  }
+
+  .btn-delete:hover {
+    background-color: #c82333;
+  }
+
+    .btn-detalles {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
     .btn-editar {
@@ -169,10 +219,32 @@ import { environment } from '../../../environments/environment';
       cursor: pointer;
     }
 
-    .form-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
+    .btn-asignar {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-desasignar {
+      background-color: #ffc107;
+      color: black;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-nuevo {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
     }
 
     .btn-primary {

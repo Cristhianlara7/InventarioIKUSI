@@ -12,15 +12,19 @@ import { Router } from '@angular/router';
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="equipos-container">
+      <div class="header">
+        <h2>Gestión de Equipos</h2>
+        <button class="btn-primary" (click)="agregarEquipo()">
+          <i class="fas fa-plus"></i> Nuevo Equipo
+        </button>
+      </div>
       <div class="search-container" *ngIf="!formularioVisible">
         <input 
           type="text" 
           placeholder="Buscar por código o serial..." 
           [(ngModel)]="searchTerm"
           (input)="filtrarEquipos()">
-        <button class="btn-primary" (click)="agregarEquipo()">Nuevo Equipo</button>
       </div>
-
       <!-- Lista de Equipos -->
       <div class="equipos-list" *ngIf="!formularioVisible">
         <table>
@@ -189,6 +193,26 @@ import { Router } from '@angular/router';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      padding: 0 0 20px 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .header h2 {
+      margin: 0;
+      color: #333;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
      .form-container {
       background: white;
