@@ -18,8 +18,8 @@ export class EquipoService {
     });
   }
 
-  getEquiposAsignados(usuarioId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/equipos/usuario/${usuarioId}/asignados`).pipe(
+  getEquiposAsignados(empleadoId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/equipos/empleado/${empleadoId}/asignados`).pipe(
       tap(response => console.log('Respuesta del servidor para equipos asignados:', response))
     );
   }

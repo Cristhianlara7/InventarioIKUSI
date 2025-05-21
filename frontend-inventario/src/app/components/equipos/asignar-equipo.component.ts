@@ -189,7 +189,7 @@ export class AsignarEquipoComponent implements OnInit {
     });
 }
 
-  cargarEmpleados() {  // Nuevo método para cargar empleados
+  cargarEmpleados() {
     this.http.get(`${environment.apiUrl}/empleados`).subscribe((data: any) => {
       this.empleados = data;
     });

@@ -3,489 +3,107 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-equipos',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  styles: [`
-    .table-container {
-      overflow-x: auto;
-      margin: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 0;
-    }
-
-    th {
-      background-color: #f8f9fa;
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      color: #2c3e50;
-      border-bottom: 2px solid #dee2e6;
-    }
-
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #dee2e6;
-      color: #2c3e50;
-    }
-
-    tr:hover {
-      background-color: #f8f9fa;
-    }
-
-    .acciones {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .btn-actualizar {
-      background-color: #17a2b8;
-      color: white;
-    }
-
-    .btn-actualizar:hover {
-      background-color: #138496;
-    }
-
-    .btn-eliminar {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .btn-eliminar:hover {
-      background-color: #c82333;
-    }
-
-    .btn-asignar {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .btn-asignar:hover {
-      background-color: #218838;
-    }
-
-    .btn-detalles {
-      background-color: #6c757d;
-      color: white;
-    }
-
-    .btn-detalles:hover {
-      background-color: #5a6268;
-    }
-
-    .search-container {
-      margin: 20px;
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .btn-nuevo {
-      background-color: #007bff;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .btn-nuevo:hover {
-      background-color: #0056b3;
-    }
-
-    .formulario-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .formulario {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .botones {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .btn-guardar {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .btn-guardar:hover {
-      background-color: #218838;
-    }
-
-    .btn-guardar:disabled {
-      background-color: #6c757d;
-      cursor: not-allowed;
-    }
-
-    .btn-cancelar {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .btn-cancelar:hover {
-      background-color: #c82333;
-    }
-  
-    .table-container {
-      overflow-x: auto;
-      margin: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 0;
-    }
-
-    th {
-      background-color: #f8f9fa;
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      color: #2c3e50;
-      border-bottom: 2px solid #dee2e6;
-    }
-
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #dee2e6;
-      color: #2c3e50;
-    }
-
-    tr:hover {
-      background-color: #f8f9fa;
-    }
-
-    .acciones {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .btn-actualizar {
-      background-color: #17a2b8;
-      color: white;
-    }
-
-    .btn-actualizar:hover {
-      background-color: #138496;
-    }
-
-    .btn-eliminar {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .btn-eliminar:hover {
-      background-color: #c82333;
-    }
-
-    .btn-asignar {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .btn-asignar:hover {
-      background-color: #218838;
-    }
-
-    .btn-detalles {
-      background-color: #6c757d;
-      color: white;
-    }
-
-    .btn-detalles:hover {
-      background-color: #5a6268;
-    }
-
-    .search-container {
-      margin: 20px;
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .btn-nuevo {
-      background-color: #007bff;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .btn-nuevo:hover {
-      background-color: #0056b3;
-    }
-
-    .formulario-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .formulario {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .botones {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .btn-guardar {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .btn-guardar:hover {
-      background-color: #218838;
-    }
-
-    .btn-guardar:disabled {
-      background-color: #6c757d;
-      cursor: not-allowed;
-    }
-
-    .btn-cancelar {
-      background-color: #dc3545;
-      color: white;
-    }
-      .btn-desasignar {
-  background-color: #ffc107;
-  color: black;
-}
-
-.btn-desasignar:hover {
-  background-color: #e0a800;
-}
-
-    .btn-cancelar:hover {
-      background-color: #c82333;
-    }
-  `],
   template: `
-    <div class="search-container">
-      <input 
-        type="text" 
-        placeholder="Buscar por código o serial..." 
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="filtrarEquipos()"
-      >
-      <button class="btn btn-nuevo" (click)="agregarEquipo()" *ngIf="!esVisitante()">
-        Nuevo Equipo
-      </button>
-    </div>
+    <div class="equipos-container">
+      <div class="search-container" *ngIf="!formularioVisible">
+        <input 
+          type="text" 
+          placeholder="Buscar por código o serial..." 
+          [(ngModel)]="searchTerm"
+          (input)="filtrarEquipos()">
+        <button class="btn-primary" (click)="agregarEquipo()">Nuevo Equipo</button>
+      </div>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Tipo</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Serial</th>
-            <th>Usuario Asignado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let equipo of equiposFiltrados">
-            <td>{{equipo.codigo}}</td>
-            <td>{{equipo.tipoEquipo?.nombre}} - {{equipo.tipoEquipo?.descripcion || 'Sin descripción'}}</td>
-            <td>{{equipo.marca}}</td>
-            <td>{{equipo.modelo}}</td>
-            <td>{{equipo.serial}}</td>
-            <td>
-              {{equipo.empleadoAsignado ? 
-                (equipo.empleadoAsignado.nombres + ' ' + equipo.empleadoAsignado.apellidos) : 
-                'No asignado'}}
-            </td>
-            <td class="acciones">
-              <ng-container *ngIf="!esVisitante()">
-                <button class="btn btn-actualizar" (click)="editarEquipo(equipo)">
-                  Actualizar
+      <!-- Lista de Equipos -->
+      <div class="equipos-list" *ngIf="!formularioVisible">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Tipo</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Serial</th>
+              <th>Empleado Asignado</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let equipo of equiposFiltrados">
+              <td>{{equipo.codigo}}</td>
+              <td>{{equipo.tipoEquipo?.nombre}}</td>
+              <td>{{equipo.marca}}</td>
+              <td>{{equipo.modelo}}</td>
+              <td>{{equipo.serial}}</td>
+              <td>
+                <span *ngIf="equipo.empleadoAsignado">
+                  {{equipo.empleadoAsignado.nombres}} {{equipo.empleadoAsignado.apellidos}}
+                </span>
+                <span *ngIf="!equipo.empleadoAsignado" class="no-asignado">
+                  No asignado
+                </span>
+              </td>
+              <td>
+                <span [class]="'estado-' + determinarEstado(equipo).toLowerCase()">
+                  {{determinarEstado(equipo)}}
+                </span>
+              </td>
+              <td class="acciones">
+                <button class="btn-actualizar" (click)="editarEquipo(equipo)">
+                  <i class="fas fa-edit"></i> Editar
                 </button>
-                <button class="btn btn-eliminar" (click)="eliminarEquipo(equipo)">
-                  Eliminar
+                <button class="btn-asignar" *ngIf="!equipo.empleadoAsignado" (click)="asignarEquipo(equipo._id)">
+                  <i class="fas fa-user-plus"></i> Asignar
                 </button>
-                <button class="btn btn-asignar" (click)="asignarEquipo(equipo)" *ngIf="!equipo.empleadoAsignado">
-                  Asignar
+                <button class="btn-desasignar" *ngIf="equipo.empleadoAsignado" (click)="desasignarEquipo(equipo._id)">
+                  <i class="fas fa-user-minus"></i> Desasignar
                 </button>
-                <button class="btn btn-desasignar" (click)="desasignarEquipo(equipo)" *ngIf="equipo.empleadoAsignado">
-                  Desasignar
+                <button class="btn-eliminar" (click)="eliminarEquipo(equipo._id)">
+                  <i class="fas fa-trash"></i> Eliminar
                 </button>
-              </ng-container>
-              <button class="btn btn-detalles" (click)="verDetalles(equipo)">
-                Ver Detalles
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Agregar el formulario -->
-    <div class="formulario-container" *ngIf="formularioVisible">
-      <div class="formulario">
-        <h3>{{equipoSeleccionado ? 'Editar Equipo' : 'Nuevo Equipo'}}</h3>
+      <!-- Formulario de Equipo -->
+      <div class="form-container" *ngIf="formularioVisible">
         <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()">
           <div class="form-group">
-            <label>Código:</label>
+            <label>Código</label>
             <input type="text" formControlName="codigo">
           </div>
-          
           <div class="form-group">
-            <label>Tipo de Equipo:</label>
-            <select formControlName="tipoEquipo">
-              <option value="">Seleccione un tipo</option>
+            <label>Tipo de Equipo</label>
+            <select formControlName="tipoEquipo" (change)="onTipoEquipoChange()">
               <option *ngFor="let tipo of tiposEquipo" [value]="tipo._id">
                 {{tipo.nombre}}
               </option>
             </select>
           </div>
-
           <div class="form-group">
-            <label>Marca:</label>
+            <label>Marca</label>
             <input type="text" formControlName="marca">
           </div>
-
           <div class="form-group">
-            <label>Modelo:</label>
+            <label>Modelo</label>
             <input type="text" formControlName="modelo">
           </div>
-
           <div class="form-group">
-            <label>Serial:</label>
+            <label>Serial</label>
             <input type="text" formControlName="serial">
           </div>
 
+          <!-- Campos adicionales para computadores -->
           <ng-container *ngIf="esComputador()">
             <div class="form-group">
               <label>Memoria RAM:</label>
@@ -503,27 +121,324 @@ import { environment } from '../../../environments/environment';
             </div>
           </ng-container>
 
-          <div class="botones">
-            <button type="submit" class="btn btn-guardar" [disabled]="!equipoForm.valid">
-              Guardar
-            </button>
-            <button type="button" class="btn btn-cancelar" (click)="cancelar()">
-              Cancelar
-            </button>
+          <div class="form-buttons">
+            <button type="submit" class="btn-primary">Guardar</button>
+            <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
           </div>
         </form>
       </div>
     </div>
-`,
-  })
+  `,
+  styles: [`
+    .equipos-container {
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+     .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+    .acciones {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-ver {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-editar {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-asignar {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-eliminar {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    .search-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+  
+    .search-container input {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+  
+    .btn-actualizar {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  
+    .btn-detalles {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-desasignar {
+      background-color: #ffc107;
+      color: black;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+    .acciones {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-ver {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-editar {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-asignar {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-eliminar {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    .search-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .btn-actualizar {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-detalles {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .estado-asignado {
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    
+    .estado-disponible {
+      color: #3498db;
+      font-weight: bold;
+    }
+    
+    .estado-enstock {
+      color: #f1c40f;
+      font-weight: bold;
+    }
+    
+    .no-asignado {
+      color: #95a5a6;
+      font-style: italic;
+    }
+    
+    td {
+      vertical-align: middle;
+      padding: 12px;
+    }
+    
+    .acciones {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    
+    .acciones button {
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .acciones button i {
+      font-size: 14px;
+    }
+  `]
+})
 export class EquiposComponent implements OnInit {
   equipoForm: FormGroup;
   equipos: any[] = [];
-  equiposFiltrados: any[] = [];
   tiposEquipo: any[] = [];
   formularioVisible = false;
-  searchTerm: string = '';
   equipoSeleccionado: any = null;
 
   constructor(
@@ -543,162 +458,46 @@ export class EquiposComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    this.cargarEquipos();
-    this.cargarTiposEquipo();
-  }
-
-  cargarEquipos() {
-    this.http.get(`${environment.apiUrl}/equipos`).subscribe((data: any) => {
-      this.equipos = data;
-      this.equiposFiltrados = this.equipos.map(equipo => {
-        return {
-          ...equipo,
-          tipoEquipo: {
-            ...equipo.tipoEquipo,
-            descripcion: equipo.tipoEquipo?.descripcion || 'Sin descripción'
-          },
-          empleadoAsignado: equipo.empleadoAsignado ? {
-            nombres: equipo.empleadoAsignado.nombres,
-            apellidos: equipo.empleadoAsignado.apellidos
-          } : null
-        };
-      });
-    });
-  }
-
-  cargarTiposEquipo() {
-    this.http.get(`${environment.apiUrl}/tipos-equipo`).subscribe((data: any) => {
-      this.tiposEquipo = data;
-    });
-  }
-  esVisitante(): boolean {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      return user.rol === 'visitante';
-    }
-    return false;
-  }
-
-  editarEquipo(equipo: any) {
-    this.equipoSeleccionado = equipo; // Usamos equipoSeleccionado en lugar de usuarioSeleccionado
-    this.equipoForm.patchValue({
-      codigo: equipo.codigo,
-      tipoEquipo: equipo.tipoEquipo._id,
-      marca: equipo.marca,
-      modelo: equipo.modelo,
-      serial: equipo.serial,
-      memoriaRam: equipo.memoriaRam,
-      discoDuro: equipo.discoDuro,
-      procesador: equipo.procesador
-    });
-    this.formularioVisible = true;
-  }
-
-  guardarEquipo() {
-    if (this.equipoForm.valid) {
-      const equipo = this.equipoForm.value;
-      
-      if (this.equipoSeleccionado) {
-        // Si estamos editando un equipo existente
-        this.http.put(`${environment.apiUrl}/equipos/${this.equipoSeleccionado._id}`, equipo)
-          .subscribe({
-            next: () => {
-              alert('Equipo actualizado exitosamente');
-              this.cargarEquipos();
-              this.formularioVisible = false;
-              this.equipoForm.reset();
-              this.equipoSeleccionado = null;
-            },
-            error: (error) => {
-              console.error('Error al actualizar equipo:', error);
-              let mensajeError = 'Error al actualizar el equipo. ';
-              if (error.error && error.error.message) {
-                mensajeError += error.error.message;
-              }
-              alert(mensajeError);
-            }
-          });
-      } else {
-        // Si estamos creando un nuevo equipo
-        this.http.post(`${environment.apiUrl}/equipos`, equipo)
-          .subscribe({
-            next: (response) => {
-              this.cargarEquipos();
-              this.formularioVisible = false;
-              this.equipoForm.reset();
-              alert('Equipo guardado exitosamente');
-            },
-            error: (error) => {
-              console.error('Error al guardar el equipo:', error);
-              let mensajeError = 'Error al guardar el equipo. ';
-              
-              if (error.error && error.error.message) {
-                mensajeError += error.error.message;
-              } else {
-                mensajeError += 'Por favor, verifique los datos e intente nuevamente.';
-              }
-              
-              alert(mensajeError);
-            }
-          });
-      }
-    }
-  }
-
-  cancelar() {
-    this.formularioVisible = false;
-    this.equipoForm.reset();
-    this.equipoSeleccionado = null; // Limpiamos el equipo seleccionado
-  }
-
-  eliminarEquipo(equipo: any) {
-    if (confirm('¿Está seguro de eliminar este equipo?')) {
-      this.http.delete(`${environment.apiUrl}/equipos/${equipo._id}`).subscribe(() => {
-        this.cargarEquipos();
-      });
-    }
-  }
-
-  // Eliminar completamente el método aplicarFiltro() ya que es redundante
-  // y usar solo filtrarEquipos()
-
-  asignarEquipo(equipo: any) {
-    // Navegar a la página de asignación con el ID del equipo
-    this.router.navigate(['/equipos/asignar'], { 
-      queryParams: { equipoId: equipo._id }
-    });
-  }
-
-  verDetalles(equipo: any) {
-    // Mostrar los detalles en un modal o diálogo
-    const detalles = `
-      Código: ${equipo.codigo}
-      Tipo: ${equipo.tipoEquipo?.nombre}
-      Marca: ${equipo.marca}
-      Modelo: ${equipo.modelo}
-      Serial: ${equipo.serial}
-      Estado: ${equipo.usuarioAsignado ? 'Asignado' : 'Disponible'}
-      ${equipo.memoriaRam ? 'Memoria RAM: ' + equipo.memoriaRam : ''}
-      ${equipo.discoDuro ? 'Disco Duro: ' + equipo.discoDuro : ''}
-      ${equipo.procesador ? 'Procesador: ' + equipo.procesador : ''}
-    `
-    alert(detalles); // Por ahora usamos alert, pero se podría mejorar con un modal
-  }
   esComputador(): boolean {
     const tipoEquipoId = this.equipoForm.get('tipoEquipo')?.value;
     const tipoEquipo = this.tiposEquipo.find(tipo => tipo._id === tipoEquipoId);
     return tipoEquipo?.nombre.toLowerCase() === 'computador';
   }
 
-  agregarEquipo() {
-    this.equipoSeleccionado = null; // Limpiar cualquier equipo seleccionado previamente
-    this.equipoForm.reset(); // Resetear el formulario
-    this.formularioVisible = true; // Mostrar el formulario
+  onTipoEquipoChange() {
+    if (this.esComputador()) {
+      // No hacemos nada especial, los campos ya están en el formulario
+    } else {
+      // Limpiamos los campos específicos de computador
+      this.equipoForm.patchValue({
+        memoriaRam: '',
+        discoDuro: '',
+        procesador: ''
+      });
+    }
   }
 
-  // Agregar método para filtrar equipos
+  ngOnInit() {
+    this.cargarEquipos();
+    this.cargarTiposEquipo();
+  }
+
+  searchTerm: string = '';
+  equiposFiltrados: any[] = [];
+
+  cargarEquipos() {
+    this.http.get(`${environment.apiUrl}/equipos`).subscribe({
+      next: (data: any) => {
+        this.equipos = data;
+        this.equiposFiltrados = this.equipos;
+      },
+      error: (error) => {
+        console.error('Error al cargar equipos:', error);
+        alert('Error al cargar los equipos');
+      }
+    });
+  }
+
   filtrarEquipos() {
     if (!this.searchTerm) {
       this.equiposFiltrados = [...this.equipos];
@@ -708,34 +507,140 @@ export class EquiposComponent implements OnInit {
     const termino = this.searchTerm.toLowerCase();
     this.equiposFiltrados = this.equipos.filter(equipo => 
       equipo.codigo?.toLowerCase().includes(termino) ||
-      equipo.serial?.toLowerCase().includes(termino) ||
-      equipo.marca?.toLowerCase().includes(termino) ||
-      equipo.modelo?.toLowerCase().includes(termino)
+      equipo.serial?.toLowerCase().includes(termino)
     );
   }
 
-  desasignarEquipo(equipo: any) {
-    if (confirm('¿Está seguro de desasignar este equipo?')) {
-      this.http.post(`${environment.apiUrl}/equipos/${equipo._id}/desasignar`, {})
-        .subscribe({
-          next: () => {
-            alert('Equipo desasignado exitosamente');
-            this.cargarEquipos();
-          },
-          error: (error) => {
-            console.error('Error al desasignar equipo:', error);
-            let mensajeError = 'Error al desasignar el equipo: ';
-            if (error.error?.message) {
-              mensajeError += error.error.message;
-            } else {
-              mensajeError += 'Error de conexión con el servidor';
-            }
-            alert(mensajeError);
-          }
-        });
+  determinarEstado(equipo: any): string {
+    if (equipo.empleadoAsignado) {
+      return 'Asignado';
+    } else if (equipo.enStock) {
+      return 'En Stock';
+    } else {
+      return 'Disponible';
     }
   }
+
+  cargarTiposEquipo() {
+    this.http.get(`${environment.apiUrl}/tipos-equipo`).subscribe({
+      next: (data: any) => {
+        this.tiposEquipo = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar tipos de equipo:', error);
+      }
+    });
+  }
+
+  guardarEquipo() {
+    if (this.equipoForm.valid) {
+      const equipoData = this.equipoForm.value;
+      
+      if (this.equipoSeleccionado) {
+        this.http.put(`${environment.apiUrl}/equipos/${this.equipoSeleccionado._id}`, equipoData)
+          .subscribe({
+            next: () => {
+              alert('Equipo actualizado exitosamente');
+              this.cargarEquipos();
+              this.limpiarFormulario();
+            },
+            error: (error) => {
+              console.error('Error al actualizar equipo:', error);
+              alert('Error al actualizar el equipo');
+            }
+          });
+      } else {
+        this.http.post(`${environment.apiUrl}/equipos`, equipoData)
+          .subscribe({
+            next: () => {
+              alert('Equipo creado exitosamente');
+              this.cargarEquipos();
+              this.limpiarFormulario();
+            },
+            error: (error) => {
+              console.error('Error al crear equipo:', error);
+              alert('Error al crear el equipo');
+            }
+          });
+      }
+    }
+  }
+
+  editarEquipo(equipo: any) {
+    this.equipoSeleccionado = equipo;
+    this.equipoForm.patchValue({
+      nombre: equipo.nombre,
+      modelo: equipo.modelo,
+      serial: equipo.serial,
+      tipoEquipo: equipo.tipoEquipo._id
+    });
+    this.formularioVisible = true;
+  }
+
+  asignarEquipo(equipoId: string) {
+    this.router.navigate(['/equipos/asignar'], { 
+      queryParams: { equipoId: equipoId }
+    });
+  }
+
+  desasignarEquipo(id: string) {
+    if (confirm('¿Está seguro de desasignar este equipo? El equipo quedará en estado "En Stock"')) {
+      this.http.post(`${environment.apiUrl}/equipos/${id}/desasignar`, {}).subscribe({
+        next: (response: any) => {
+          alert('Equipo desasignado exitosamente');
+          this.cargarEquipos();
+        },
+        error: (error) => {
+          console.error('Error al desasignar equipo:', error);
+          alert('Error al desasignar el equipo');
+        }
+      });
+    }
+  }
+  
+
+  eliminarEquipo(id: string) {
+    if (confirm('¿Está seguro de eliminar este equipo?')) {
+      this.http.delete(`${environment.apiUrl}/equipos/${id}`).subscribe({
+        next: () => {
+          alert('Equipo eliminado exitosamente');
+          this.cargarEquipos();
+        },
+        error: (error) => {
+          console.error('Error al eliminar equipo:', error);
+          alert('Error al eliminar el equipo');
+        }
+      });
+    }
+  }
+
+  verDetalles(equipo: any) {
+    // Aquí puedes implementar la lógica para mostrar los detalles
+    // Por ejemplo, podrías abrir un modal o navegar a una ruta de detalles
+    alert(`
+      Detalles del Equipo:
+      Nombre: ${equipo.nombre}
+      Modelo: ${equipo.modelo}
+      Serial: ${equipo.serial}
+      Estado: ${equipo.estado}
+      Tipo: ${equipo.tipoEquipo?.nombre}
+    `);
+  }
+
+  agregarEquipo() {
+    this.formularioVisible = true;
+    this.equipoForm.reset();
+    this.equipoSeleccionado = null;
+  }
+
+  cancelar() {
+    this.limpiarFormulario();
+  }
+
+  private limpiarFormulario() {
+    this.formularioVisible = false;
+    this.equipoForm.reset();
+    this.equipoSeleccionado = null;
+  }
 }
-
-
 

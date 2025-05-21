@@ -7,11 +7,11 @@ const equipoController = {
             const equipos = await Equipo.find()
                 .populate({
                     path: 'tipoEquipo',
-                    select: 'nombre descripcion' // Asegurarnos de seleccionar ambos campos
+                    select: 'nombre descripcion'
                 })
                 .populate({
-                    path: 'usuarioAsignado',
-                    select: 'nombres apellidos email departamento'
+                    path: 'empleadoAsignado',
+                    select: 'nombres apellidos email'
                 });
             res.json(equipos);
         } catch (error) {
@@ -171,16 +171,19 @@ const equipoController = {
             }
             
             // Verificar si el equipo ya está asignado
-            if (equipo.usuarioAsignado) {
+            if (equipo.empleadoAsignado) {
                 return res.status(400).json({ message: 'El equipo ya está asignado a otro empleado' });
             }
             
             // Actualizar el equipo usando findByIdAndUpdate para asegurar una actualización atómica
             const equipoActualizado = await Equipo.findByIdAndUpdate(
                 equipoId,
-                { usuarioAsignado: empleadoId },
+                { 
+                    empleadoAsignado: empleadoId,
+                    usuarioAsignado: null // Asegurarnos de que usuarioAsignado esté en null
+                },
                 { new: true }
-            ).populate('usuarioAsignado');
+            ).populate('empleadoAsignado');
             
             if (!equipoActualizado) {
                 return res.status(500).json({ message: 'Error al actualizar el equipo' });
@@ -198,6 +201,42 @@ const equipoController = {
             });
         }
     },
+    desasignarEquipo: async (req, res) => {
+        try {
+            const equipoId = req.params.id;
+            
+
+            const equipo = await Equipo.findById(equipoId);
+            if (!equipo) {
+                return res.status(404).json({ message: 'Equipo no encontrado' });
+            }
+            
+            // Actualizar el equipo: quitar el empleado asignado y cambiar el estado
+            const equipoActualizado = await Equipo.findByIdAndUpdate(
+              equipoId,
+              { 
+                $unset: { empleadoAsignado: "" },
+                estado: "En Stock"
+              },
+              { new: true }
+            ).populate('tipoEquipo');
+            
+            if (!equipoActualizado) {
+              return res.status(500).json({ message: 'Error al actualizar el equipo' });
+            }
+            
+            res.json({ 
+              message: 'Equipo desasignado exitosamente', 
+              equipo: equipoActualizado 
+            });
+        } catch (error) {
+            console.error('Error al desasignar equipo:', error);
+            res.status(500).json({ 
+                message: 'Error al desasignar el equipo',
+                error: error.message 
+            });
+        }
+    }
 };  
 
 module.exports = equipoController;

@@ -1,94 +1,111 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { FormGroup } from '@angular/forms';
+import { Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { LoginResponse } from '../interfaces/auth.interface';
+
+interface Usuario {
+  _id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl;
-  private userSubject = new BehaviorSubject<any>(null);
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
-    // Inicializar userSubject con el usuario del localStorage si existe
-    const user = localStorage.getItem('user');
-    if (user) {
-      this.userSubject.next(JSON.parse(user));
-    }
+  private getHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      })
+    };
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  register(userData: { nombre: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/usuarios/registro`, userData)
-      .pipe(
-        tap((response: any) => {
-          if (response.token) {
-            localStorage.setItem('token', response.token);
-          }
-          if (response.user) {
-            localStorage.setItem('user', JSON.stringify(response.user));
-            this.userSubject.next(response.user);
-          }
-        })
-      );
-  }
-
-  login(credentials: {email: string, password: string}) {
-    return this.http.post<any>(`${environment.apiUrl}/usuarios/login`, credentials)
-      .pipe(
-        tap(response => {
-          if (response && response.token) {
-            // Guardamos tanto el token como el usuario
-            localStorage.setItem('token', response.token);
-            if (response.usuario) {
-              localStorage.setItem('user', JSON.stringify(response.usuario));
-              this.userSubject.next(response.usuario);
-            }
-          }
-        })
-      );
-  }
-
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    return !!(token && user);
+    const token = this.getToken();
+    return !!token;
   }
 
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.userSubject.next(null);
-  }
-
-  getUser(): Observable<any> {
-    return this.userSubject.asObservable();
-  }
-
-  cambiarPassword(datos: { passwordActual: string; nuevaPassword: string }): Observable<any> {
-    const userId = this.userSubject.value?._id;
-    if (!userId) {
-      throw new Error('Usuario no autenticado');
+  getUser(): Observable<Usuario> {
+    const token = this.getToken();
+    if (!token) {
+      return throwError(() => new Error('No hay token disponible'));
     }
-    return this.http.post(`${this.apiUrl}/usuarios/cambiar-password`, {
-      ...datos,
-      userId
-    }).pipe(
-      tap(response => {
-        console.log('Respuesta cambio contraseña:', response);
-        // No cerramos sesión automáticamente para mejor experiencia de usuario
+    
+    return this.http.get<Usuario>(`${environment.apiUrl}/usuarios/perfil`, this.getHeaders()).pipe(
+      tap(user => {
+        localStorage.setItem('user', JSON.stringify(user));
+      }),
+      catchError(error => {
+        if (error.status === 401) {
+          this.logout();
+        }
+        return throwError(() => error);
       })
     );
   }
 
-  getUsers(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/usuarios`);
+  login(credentials: { email: string; password: string }) {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/usuarios/login`, credentials).pipe(
+      tap(response => {
+        if (response && response.token) {
+          localStorage.setItem('token', response.token);
+          if (response.user) {
+            localStorage.setItem('user', JSON.stringify(response.user));
+          }
+        }
+      }),
+      catchError(error => {
+        console.error('Error en login:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
+
+  cambiarPassword(data: { passwordActual: string; nuevaPassword: string }): Observable<any> {
+    const token = this.getToken();
+    if (!token) {
+      return throwError(() => new Error('No hay token disponible'));
+    }
+
+    return this.http.post(
+      `${environment.apiUrl}/usuarios/cambiar-password`,
+      data,
+      this.getHeaders()
+    ).pipe(
+      tap(response => {
+        console.log('Contraseña actualizada correctamente');
+      }),
+      catchError(error => {
+        console.error('Error al cambiar contraseña:', error);
+        if (error.status === 401) {
+          if (error.error?.message?.includes('token')) {
+            this.logout();
+          }
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  register(userData: { nombre: string; email: string; password: string }) {
+    return this.http.post<any>(`${environment.apiUrl}/usuarios/register`, userData);
   }
 }
 

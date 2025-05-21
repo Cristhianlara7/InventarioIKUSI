@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface Usuario {
-    id: string;
+    id?: string;
+    _id: string;  // Hacemos _id requerido y id opcional
     nombre: string;
     email: string;
     rol: string;
@@ -123,7 +125,8 @@ export class PerfilComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.passwordForm = this.fb.group({
       passwordActual: ['', Validators.required],
@@ -133,47 +136,116 @@ export class PerfilComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Iniciando componente de perfil');   
+      console.log('Iniciando componente de perfil');   
+      // Primero verificamos si hay un token válido
+      const token = this.authService.getToken();
+      if (!token) {
+          console.error('No hay token disponible');
+          this.router.navigate(['/auth']);
+          return;
+      }
+  
+      // Intentamos obtener el usuario del localStorage primero
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+          try {
+              const userLocal = JSON.parse(userStr);
+              this.usuario = {
+                  _id: userLocal._id || '',
+                  nombre: userLocal.nombre || '',
+                  email: userLocal.email || '',
+                  rol: userLocal.rol || ''
+              };
+              this.cdr.detectChanges();
+          } catch (e) {
+              console.error('Error al parsear usuario del localStorage:', e);
+          }
+      }
+  
+      // Actualizamos con el servicio
+      this.authService.getUser().subscribe({
+          next: (user) => {
+              if (user) {
+                  this.usuario = {
+                      _id: user._id,
+                      nombre: user.nombre,
+                      email: user.email,
+                      rol: user.rol
+                  };
+                  localStorage.setItem('user', JSON.stringify(this.usuario));
+                  this.cdr.detectChanges();
+              }
+          },
+          error: (error) => {
+              console.error('Error al obtener usuario:', error);
+              if (error.status === 401) {
+                  this.authService.logout();
+                  this.router.navigate(['/auth']);
+              }
+          }
+      });
+  }
+
+  cambiarPassword() {
+    if (this.passwordForm.invalid) {
+        return;
+    }
+
+    const formValues = this.passwordForm.value;
+    
+    if (formValues.nuevaPassword !== formValues.confirmarPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+
+    // Verificamos que tengamos el token
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Error: No hay sesión activa');
+        return;
+    }
+
+    this.authService.cambiarPassword({
+        passwordActual: formValues.passwordActual,
+        nuevaPassword: formValues.nuevaPassword
+    }).subscribe({
+        next: (response) => {
+            alert('Contraseña actualizada exitosamente');
+            this.passwordForm.reset();
+        },
+        error: (error) => {
+            console.error('Error al cambiar contraseña:', error);
+            let mensajeError = 'Error al cambiar la contraseña: ';
+            
+            if (error.error?.message) {
+                mensajeError += error.error.message;
+            } else if (error.status === 401) {
+                mensajeError += 'La contraseña actual es incorrecta';
+                // Si el token expiró, redirigimos al login
+                if (error.error?.message?.includes('token')) {
+                    localStorage.clear();
+                    window.location.href = '/auth';
+                }
+            } else {
+                mensajeError += 'Error al procesar la solicitud';
+            }
+            
+            alert(mensajeError);
+        }
+    });
+}
+
+  private obtenerIdUsuario(): string | null {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
-        const userLocal = JSON.parse(userStr);
-        // Modificar para usar _id en lugar de id
-        if (this.isValidUser(userLocal)) {
-          this.usuario = {
-            id: userLocal.id, // Convertir _id a id
-            nombre: userLocal.nombre,
-            email: userLocal.email,
-            rol: userLocal.rol
-          };
-          console.log('Usuario válido obtenido del localStorage:', this.usuario);
-        } else {
-          console.warn('Estructura de usuario inválida en localStorage');
-        }
-      } catch (e) {
-        console.error('Error al parsear usuario del localStorage:', e);
+        const user = JSON.parse(userStr);
+        return user._id || user.id || null;
+      } catch {
+        return null;
       }
     }
-    
-    // Actualizar la validación del usuario
-    this.authService.getUser().subscribe({
-      next: (user) => {
-        console.log('Usuario obtenido del servicio:', user);
-        if (user && user._id) {
-          this.usuario = {
-            id: user._id,
-            nombre: user.nombre,
-            email: user.email,
-            rol: user.rol
-          };
-        } else {
-          console.warn('Estructura de usuario inválida del servidor');
-        }
-      },
-      error: (error) => {
-        console.error('Error al obtener usuario:', error);
-      }
-    });
+    return null;
   }
 
   private isValidUser(user: any): user is Usuario {
@@ -182,42 +254,6 @@ export class PerfilComponent implements OnInit {
            typeof user.nombre === 'string' && 
            typeof user.email === 'string' && 
            typeof user.rol === 'string';
-  }
-
-  cambiarPassword() {
-    if (this.passwordForm.invalid) {
-      return;
-    }
-
-    const formValues = this.passwordForm.value;
-    
-    if (formValues.nuevaPassword !== formValues.confirmarPassword) {
-      alert('Las contraseñas no coinciden');
-      return;
-    }
-
-    if (!this.usuario?.id) {
-      alert('Error: Usuario no autenticado');
-      return;
-    }
-
-    const datos = {
-      passwordActual: formValues.passwordActual,
-      nuevaPassword: formValues.nuevaPassword,
-      userId: this.usuario.id
-    };
-
-    this.authService.cambiarPassword(datos).subscribe({
-      next: (response: any) => {
-        alert('Contraseña actualizada exitosamente');
-        this.passwordForm.reset();
-      },
-      error: (error) => {
-        console.error('Error al cambiar la contraseña:', error);
-        const mensajeError = error.error?.message || 'Error al cambiar la contraseña';
-        alert(mensajeError);
-      }
-    });
   }
 
   // Agregar el método passwordMatchValidator

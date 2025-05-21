@@ -24,10 +24,9 @@ const equipoSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    usuarioAsignado: {
+    empleadoAsignado: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Usuario',
-        default: null
+        ref: 'Empleado'
     },
     // Campos específicos para computadores
     memoriaRam: {

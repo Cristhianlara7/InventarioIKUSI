@@ -11,6 +11,8 @@ const tipoEquipoSchema = new mongoose.Schema({
         required: false,
         default: 'Sin descripción'
     }
+},{
+    timestamps: true
 });
 
-module.exports = mongoose.model('tipoequipos', tipoEquipoSchema, 'tipoequipos');
+module.exports = mongoose.model('TipoEquipo', tipoEquipoSchema);

@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoginResponse } from '../../interfaces/auth.interface';
 
 @Component({
   selector: 'app-auth',
@@ -151,6 +152,7 @@ export class AuthComponent {
     this.authForm.get('nombre')?.updateValueAndValidity();
   }
 
+
   onSubmit() {
     if (this.authForm.valid) {
       if (this.isLoginMode) {
@@ -160,69 +162,58 @@ export class AuthComponent {
         };
         
         this.authService.login(credentials).subscribe({
-          next: (response) => {
-            console.log('Respuesta del servidor:', response);
+          next: (response: LoginResponse) => {
             if (response && response.token) {
-              console.log('Inicio de sesión exitoso');
-              // Verificamos que la autenticación sea exitosa antes de navegar
+              localStorage.setItem('token', response.token);
+              localStorage.setItem('user', JSON.stringify(response.user));
+              
               if (this.authService.isAuthenticated()) {
                 this.router.navigate(['/dashboard'])
-                  .then(() => {
-                    console.log('Navegación completada');
-                    // Emitimos un evento de inicio de sesión exitoso
-                    window.dispatchEvent(new CustomEvent('loginSuccess'));
-                  })
+                  .then(() => window.dispatchEvent(new CustomEvent('loginSuccess')))
                   .catch(err => {
                     console.error('Error en la navegación:', err);
                     alert('Error al navegar al dashboard');
                   });
-              } else {
-                console.error('Error: Autenticación fallida');
-                alert('Error: No se pudo iniciar sesión correctamente');
               }
-            } else {
-              console.error('Respuesta inválida:', response);
-              alert('Error: No se recibió un token válido');
             }
           },
           error: (error) => {
-            console.error('Error completo:', error);
+            console.error('Error de inicio de sesión:', error);
             let mensajeError = 'Error al iniciar sesión: ';
             if (error.error?.message) {
               mensajeError += error.error.message;
-            } else if (error.status === 401) {
-              mensajeError += 'Credenciales inválidas';
-            } else if (error.status === 404) {
-              mensajeError += 'Usuario no encontrado';
             } else {
-              mensajeError += 'Error de conexión con el servidor';
+              mensajeError += 'Credenciales inválidas';
             }
             alert(mensajeError);
           }
         });
       } else {
-        // Lógica de registro mejorada
-        this.authService.register(this.authForm.value).subscribe({
-          next: (response) => {
-            alert('Usuario registrado exitosamente');
+        // Modo registro
+        const userData = {
+          nombre: this.authForm.value.nombre,
+          email: this.authForm.value.email,
+          password: this.authForm.value.password
+        };
+        
+        this.authService.register(userData).subscribe({
+          next: () => {
+            alert('Registro exitoso. Por favor inicia sesión.');
             this.isLoginMode = true;
             this.authForm.reset();
           },
           error: (error) => {
-            let mensajeError = 'Error en el registro: ';
+            console.error('Error de registro:', error);
+            let mensajeError = 'Error al registrar: ';
             if (error.error?.message) {
               mensajeError += error.error.message;
-            } else if (error.status === 400) {
-              mensajeError += 'El email ya está registrado';
             } else {
-              mensajeError += 'Error al crear el usuario';
+              mensajeError += 'No se pudo completar el registro';
             }
             alert(mensajeError);
           }
         });
       }
-    } else {
-      alert('Por favor, complete todos los campos correctamente');
     }
-}
-}
+  }}
+  

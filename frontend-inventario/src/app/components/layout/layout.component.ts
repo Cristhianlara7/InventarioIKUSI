@@ -89,11 +89,17 @@ export class LayoutComponent {
     
     esVisitante(): boolean {
         const userStr = localStorage.getItem('user');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            return user.rol === 'visitante';
+        if (!userStr || userStr === 'undefined') {
+            return false; // Si no hay usuario o es undefined, retornamos false
         }
-        return false;
+        
+        try {
+            const user = JSON.parse(userStr);
+            return user && user.rol === 'visitante';
+        } catch (e) {
+            console.error('Error parsing user from localStorage:', e);
+            return false; // Por seguridad, si hay error retornamos false
+        }
     }
     
     logout() {
