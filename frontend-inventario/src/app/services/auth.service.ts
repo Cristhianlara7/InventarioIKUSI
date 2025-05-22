@@ -15,6 +15,16 @@ interface Usuario {
 @Injectable({
   providedIn: 'root'
 })
+  export class ApiService {
+  private apiUrl = environment.apiUrl; // Usa la URL desde environment
+
+  constructor(private http: HttpClient) {}
+
+  getDatos() {
+    return this.http.get(`${this.apiUrl}/api/ruta`);
+  }
+}
+
 export class AuthService {
   constructor(private http: HttpClient) {}
 
