@@ -15,14 +15,14 @@ const historialSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    usuarioAnterior: {
+    empleadoAnterior: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Usuario',
+        ref: 'Empleado', // <-- Cambiado de 'Usuario' a 'Empleado'
         default: null
     },
-    usuarioNuevo: {
+    empleadoNuevo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Usuario',
+        ref: 'Empleado', // <-- Cambiado de 'Usuario' a 'Empleado'
         default: null
     },
     fechaMovimiento: {

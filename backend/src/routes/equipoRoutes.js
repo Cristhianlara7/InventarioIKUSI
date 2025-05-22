@@ -19,6 +19,7 @@ router.delete('/:id', auth, verificarRol(['administrador']), equipoController.de
 
 // Modificar la ruta de asignación
 router.post('/:id/asignar-equipo', auth, equipoController.asignarEquipo);
-router.post('/:id/desasignar', equipoController.desasignarEquipo);
+// Modificar la ruta de desasignación para incluir auth
+router.post('/:id/desasignar', auth, equipoController.desasignarEquipo);
 
 module.exports = router;

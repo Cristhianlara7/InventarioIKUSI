@@ -21,14 +21,13 @@ const historialController = {
     getByEquipo: async (req, res) => {
         try {
             const historial = await Historial.find({ equipo: req.params.equipoId })
-                .populate('equipo')
-                .populate('usuarioAnterior')
-                .populate('usuarioNuevo')
-                .populate('realizadoPor')
+                .populate('empleadoAnterior', 'nombre apellidos email')
+                .populate('empleadoNuevo', 'nombre apellidos email')
+                .populate('realizadoPor', 'nombre apellidos email')
                 .sort({ fechaMovimiento: -1 });
             res.json(historial);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(500).json({ message: 'Error al obtener el historial', error });
         }
     },
 

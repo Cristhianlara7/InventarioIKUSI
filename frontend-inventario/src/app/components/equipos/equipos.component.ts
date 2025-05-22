@@ -74,6 +74,9 @@ import { Router } from '@angular/router';
                 <button class="btn-eliminar" (click)="eliminarEquipo(equipo._id)">
                   <i class="fas fa-trash"></i> Eliminar
                 </button>
+                <button class="btn-historial" (click)="mostrarHistorial(equipo)">
+                  <i class="fas fa-history"></i> Historial
+                </button>
               </td>
             </tr>
           </tbody>
@@ -136,6 +139,59 @@ import { Router } from '@angular/router';
         </form>
       </div>
     </div>
+
+  <!-- Modal de Historial -->
+<div class="modal" *ngIf="modalHistorialVisible">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Historial de Asignaciones</h2>
+      <button class="btn-cerrar" (click)="cerrarModalHistorial()">×</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="historial.length > 0; else sinHistorial">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Usuario Anterior</th>
+              <th>Usuario Nuevo</th>
+              <th>Fecha</th>
+              <th>Realizado por</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of historial">
+              <td>{{ h.tipoMovimiento }}</td>
+              <td>
+                {{ h.empleadoAnterior?.nombres && h.empleadoAnterior?.apellidos 
+                    ? (h.empleadoAnterior?.nombres + ' ' + h.empleadoAnterior?.apellidos)
+                    : (h.empleadoAnterior?.nombres || h.empleadoAnterior?.email || '-') }}
+              </td>
+              <td>
+                {{ h.empleadoNuevo?.nombres && h.empleadoNuevo?.apellidos 
+                    ? (h.empleadoNuevo?.nombres + ' ' + h.empleadoNuevo?.apellidos)
+                    : (h.empleadoNuevo?.nombres || h.empleadoNuevo?.email || '-') }}
+              </td>
+              <td>{{ h.fechaMovimiento | date:'short' }}</td>
+              <td>
+                {{ h.realizadoPor?.nombre && h.realizadoPor?.apellidos 
+                    ? (h.realizadoPor?.nombre + ' ' + h.realizadoPor?.apellidos)
+                    : (h.realizadoPor?.nombre || h.realizadoPor?.email || '-') }}
+              </td>
+              <td>{{ h.descripcion }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #sinHistorial>
+        <p>No hay historial de asignaciones para este equipo.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+
 
     <!-- Modal de Detalles -->
       <div class="modal" *ngIf="modalVisible">
@@ -772,18 +828,23 @@ export class EquiposComponent implements OnInit {
     });
   }
 
-  desasignarEquipo(id: string) {
-    if (confirm('¿Está seguro de desasignar este equipo? El equipo quedará en estado "En Stock"')) {
-      this.http.post(`${environment.apiUrl}/equipos/${id}/desasignar`, {}).subscribe({
-        next: (response: any) => {
-          alert('Equipo desasignado exitosamente');
-          this.cargarEquipos();
-        },
-        error: (error) => {
-          console.error('Error al desasignar equipo:', error);
-          alert('Error al desasignar el equipo');
-        }
-      });
+  desasignarEquipo(equipoId: string) {
+    if (confirm('¿Está seguro que desea desasignar este equipo?')) {
+      // Obtener el ID del usuario actual del localStorage
+      const usuarioId = localStorage.getItem('userId'); // Ajusta esto según cómo almacenas el ID del usuario
+      
+      // Enviar el ID del usuario en la petición
+      this.http.post(`${environment.apiUrl}/equipos/${equipoId}/desasignar`, { realizadoPor: usuarioId })
+        .subscribe({
+          next: () => {
+            alert('Equipo desasignado exitosamente');
+            this.cargarEquipos();
+          },
+          error: (error) => {
+            console.error('Error al desasignar equipo:', error);
+            alert('Error al desasignar el equipo');
+          }
+        });
     }
   }
   
@@ -836,8 +897,29 @@ export class EquiposComponent implements OnInit {
   esComputadorDetalles(equipo: any): boolean {
     return equipo?.tipoEquipo?.nombre.toLowerCase() === 'computador';
   }
-  
-  
 
+  historial: any[] = [];
+  modalHistorialVisible = false;
+
+  mostrarHistorial(equipo: any) {
+    this.cargarHistorial(equipo._id);
+    this.modalHistorialVisible = true;
+  }
+
+  cerrarModalHistorial() {
+    this.modalHistorialVisible = false;
+    this.historial = [];
+  }
+
+  cargarHistorial(equipoId: string) {
+    this.http.get(`${environment.apiUrl}/historial/equipo/${equipoId}`).subscribe({
+      next: (data: any) => {
+        this.historial = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar historial:', error);
+        this.historial = [];
+      }
+    });
+  }
 }
-

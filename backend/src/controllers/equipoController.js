@@ -1,4 +1,5 @@
 const Equipo = require('../models/Equipo');
+const Historial = require('../models/Historial');
 
 const equipoController = {
     // Obtener todos los equipos (accesible para todos)
@@ -188,6 +189,16 @@ const equipoController = {
             if (!equipoActualizado) {
                 return res.status(500).json({ message: 'Error al actualizar el equipo' });
             }
+
+            // Registrar en el historial
+            await Historial.create({
+                equipo: equipoId,
+                tipoMovimiento: 'asignacion',
+                descripcion: 'Asignación de equipo',
+                empleadoAnterior: null,
+                empleadoNuevo: empleadoId,
+                realizadoPor: req.usuario && req.usuario._id ? req.usuario._id : undefined // Asegura que siempre se pase el usuario
+            });
             
             res.json({ 
                 message: 'Equipo asignado exitosamente', 
@@ -205,29 +216,36 @@ const equipoController = {
         try {
             const equipoId = req.params.id;
             
-
-            const equipo = await Equipo.findById(equipoId);
+            const equipo = await Equipo.findById(equipoId).populate('empleadoAsignado');
             if (!equipo) {
                 return res.status(404).json({ message: 'Equipo no encontrado' });
             }
-            
-            // Actualizar el equipo: quitar el empleado asignado y cambiar el estado
+
+            const empleadoAnterior = equipo.empleadoAsignado;
+
+            // Actualizar el equipo
             const equipoActualizado = await Equipo.findByIdAndUpdate(
-              equipoId,
-              { 
-                $unset: { empleadoAsignado: "" },
-                estado: "En Stock"
-              },
-              { new: true }
-            ).populate('tipoEquipo');
-            
-            if (!equipoActualizado) {
-              return res.status(500).json({ message: 'Error al actualizar el equipo' });
-            }
-            
+                equipoId,
+                { 
+                    empleadoAsignado: null,
+                    usuarioAsignado: null
+                },
+                { new: true }
+            );
+
+            // Registrar en el historial
+            await Historial.create({
+                equipo: equipoId,
+                tipoMovimiento: 'devolucion',
+                descripcion: 'Desasignación de equipo',
+                empleadoAnterior: empleadoAnterior?._id,
+                empleadoNuevo: null,
+                realizadoPor: req.usuario._id
+            });
+
             res.json({ 
-              message: 'Equipo desasignado exitosamente', 
-              equipo: equipoActualizado 
+                message: 'Equipo desasignado exitosamente',
+                equipo: equipoActualizado 
             });
         } catch (error) {
             console.error('Error al desasignar equipo:', error);
@@ -237,6 +255,7 @@ const equipoController = {
             });
         }
     }
+    
 };  
 
 module.exports = equipoController;
