@@ -1,4 +1,5 @@
 const express = require('express');
+const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -23,6 +24,10 @@ const tipoEquipoRoutes = require('./routes/tipoEquipoRoutes');
 const alertaRoutes = require('./routes/alertaRoutes');
 const empleadosRoutes = require('./routes/empleadosRoutes');  // Corregida la extensión del archivo
 
+
+app.get('/', (req, res) => {
+  res.send('¡Backend funcionando correctamente!');
+});
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/tipos-equipo', tipoEquipoRoutes);
 app.use('/api/alertas', alertaRoutes);
@@ -30,6 +35,7 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/equipos', equipoRoutes);
 app.use('/api/historial', historialRoutes);
 app.use('/api/empleados', empleadosRoutes);
+
 
 // Puerto y conexión
 const PORT = process.env.PORT || 3000;
