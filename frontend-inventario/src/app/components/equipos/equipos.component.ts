@@ -74,9 +74,9 @@ import { Router } from '@angular/router';
                 <button class="btn-eliminar" (click)="eliminarEquipo(equipo._id)">
                   <i class="fas fa-trash"></i> Eliminar
                 </button>
-                <button class="btn-historial" (click)="mostrarHistorial(equipo)">
-                  <i class="fas fa-history"></i> Historial
-                </button>
+                <button class="btn btn-info" (click)="mostrarHistorial(equipo._id)">
+  <i class="fas fa-history"></i> Ver Historial
+</button>
               </td>
             </tr>
           </tbody>
@@ -148,36 +148,37 @@ import { Router } from '@angular/router';
       <button class="btn-cerrar" (click)="cerrarModalHistorial()">×</button>
     </div>
     <div class="modal-body">
-      <div *ngIf="historial.length > 0; else sinHistorial">
-        <table>
+      <div *ngIf="historial && historial.length > 0; else sinHistorial">
+        <table class="table table-striped">
           <thead>
             <tr>
+              <th>Fecha</th>
               <th>Tipo</th>
               <th>Usuario Anterior</th>
               <th>Usuario Nuevo</th>
-              <th>Fecha</th>
               <th>Realizado por</th>
               <th>Descripción</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let h of historial">
-              <td>{{ h.tipoMovimiento }}</td>
+              <td>{{ h.fechaMovimiento | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>
-                {{ h.empleadoAnterior?.nombres && h.empleadoAnterior?.apellidos 
-                    ? (h.empleadoAnterior?.nombres + ' ' + h.empleadoAnterior?.apellidos)
-                    : (h.empleadoAnterior?.nombres || h.empleadoAnterior?.email || '-') }}
+                <span [ngClass]="{
+                  'badge bg-success': h.tipoMovimiento === 'asignacion',
+                  'badge bg-warning': h.tipoMovimiento === 'devolucion'
+                }">
+                  {{ h.tipoMovimiento | titlecase }}
+                </span>
               </td>
               <td>
-                {{ h.empleadoNuevo?.nombres && h.empleadoNuevo?.apellidos 
-                    ? (h.empleadoNuevo?.nombres + ' ' + h.empleadoNuevo?.apellidos)
-                    : (h.empleadoNuevo?.nombres || h.empleadoNuevo?.email || '-') }}
+                {{ h.empleadoAnterior?.nombres }} {{ h.empleadoAnterior?.apellidos }}
               </td>
-              <td>{{ h.fechaMovimiento | date:'short' }}</td>
               <td>
-                {{ h.realizadoPor?.nombre && h.realizadoPor?.apellidos 
-                    ? (h.realizadoPor?.nombre + ' ' + h.realizadoPor?.apellidos)
-                    : (h.realizadoPor?.nombre || h.realizadoPor?.email || '-') }}
+                {{ h.empleadoNuevo?.nombres }} {{ h.empleadoNuevo?.apellidos }}
+              </td>
+              <td>
+                {{ h.realizadoPor?.nombre }} {{ h.realizadoPor?.apellidos }}
               </td>
               <td>{{ h.descripcion }}</td>
             </tr>
@@ -185,7 +186,7 @@ import { Router } from '@angular/router';
         </table>
       </div>
       <ng-template #sinHistorial>
-        <p>No hay historial de asignaciones para este equipo.</p>
+        <p class="text-center py-3">No hay historial de asignaciones para este equipo.</p>
       </ng-template>
     </div>
   </div>
@@ -595,15 +596,13 @@ import { Router } from '@angular/router';
     }
 
     .modal-content {
-      background-color: white;
+      background: white;
       padding: 20px;
       border-radius: 8px;
       width: 90%;
-      max-width: 600px;
+      max-width: 800px;
       max-height: 80vh;
       overflow-y: auto;
-      position: relative;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .modal-header {
@@ -676,6 +675,9 @@ import { Router } from '@angular/router';
   `]
 })
 export class EquiposComponent implements OnInit {
+  modalHistorialVisible = false;
+  historial: any[] = [];
+  
   equipoForm: FormGroup;
   equipos: any[] = [];
   tiposEquipo: any[] = [];
@@ -898,12 +900,17 @@ export class EquiposComponent implements OnInit {
     return equipo?.tipoEquipo?.nombre.toLowerCase() === 'computador';
   }
 
-  historial: any[] = [];
-  modalHistorialVisible = false;
-
-  mostrarHistorial(equipo: any) {
-    this.cargarHistorial(equipo._id);
-    this.modalHistorialVisible = true;
+  mostrarHistorial(equipoId: string) {
+    this.http.get(`${environment.apiUrl}/historial/equipo/${equipoId}`).subscribe({
+      next: (data: any) => {
+        this.historial = data;
+        this.modalHistorialVisible = true;
+      },
+      error: (error) => {
+        console.error('Error al cargar el historial:', error);
+        alert('Error al cargar el historial del equipo');
+      }
+    });
   }
 
   cerrarModalHistorial() {
@@ -915,10 +922,17 @@ export class EquiposComponent implements OnInit {
     this.http.get(`${environment.apiUrl}/historial/equipo/${equipoId}`).subscribe({
       next: (data: any) => {
         this.historial = data;
+        this.modalHistorialVisible = true;
       },
       error: (error) => {
-        console.error('Error al cargar historial:', error);
-        this.historial = [];
+        console.error('Error al cargar el historial:', error);
+        let mensajeError = 'Error al cargar el historial: ';
+        if (error.error?.message) {
+          mensajeError += error.error.message;
+        } else {
+          mensajeError += 'No se pudo obtener el historial del equipo';
+        }
+        alert(mensajeError);
       }
     });
   }

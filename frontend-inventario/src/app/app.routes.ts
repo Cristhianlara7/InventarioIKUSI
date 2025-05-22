@@ -5,6 +5,7 @@ import { EmpleadosComponent } from './components/empleados/empleados.component';
 import { UsuariosComponent } from './components/usuarios/usuarios.component';
 import { AuthGuard } from './guards/auth.guard';
 import { PerfilComponent } from './components/perfil/perfil.component';
+import { HistorialComponent } from './components/historial/historial.component';
 
 export const routes: Routes = [
     {
@@ -32,6 +33,7 @@ export const routes: Routes = [
                 path: 'perfil',
                 component: PerfilComponent
             },
+            
             {
                 path: 'equipos',
                 component: EquiposComponent
@@ -57,6 +59,10 @@ export const routes: Routes = [
                 path: 'reportes',
                 loadComponent: () => import('./components/reportes/reportes.component')
                   .then(m => m.ReportesComponent)
+            },
+            {
+                path: 'historial/:id',
+                component: HistorialComponent
             }
         ]
     }
