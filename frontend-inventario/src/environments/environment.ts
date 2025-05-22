@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://inventario-ikusi-backend.onrender.com/'
+  apiUrl: 'https://inventario-ikusi-backend.onrender.com'
 };
