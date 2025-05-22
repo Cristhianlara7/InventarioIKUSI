@@ -38,10 +38,10 @@ import { environment } from '../../../environments/environment';
             <input type="text" formControlName="departamento">
           </div>
           <div class="form-buttons">
-            <button type="submit" class="btn-save" [disabled]="!empleadoForm.valid">
+            <button type="submit" class="btn-success" [disabled]="!empleadoForm.valid">
               <i class="fas fa-save"></i> {{ empleadoSeleccionado ? 'Actualizar' : 'Guardar' }}
             </button>
-            <button type="button" class="btn-cancel" (click)="cancelar()">
+            <button type="button" class="btn-secundary" (click)="cancelar()">
               <i class="fas fa-times"></i> Cancelar
             </button>
           </div>
@@ -187,6 +187,15 @@ import { environment } from '../../../environments/environment';
       gap: 10px;
       margin-top: 20px;
     }
+
+    .btn-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
     .btn-save {
       background-color: #28a745;

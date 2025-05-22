@@ -56,8 +56,36 @@ import { Router } from '@angular/router';
       padding: 1rem;
       color: white;
       display: flex;
+      flex-direction: row;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0.5rem;
+      }
+      .nav-brand {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+      }
+      .nav-links a {
+        margin: 0.25rem;
+      }
+      .main-content {
+        padding: 1rem;
+      }
     }
     .nav-brand {
       font-size: 1.5rem;

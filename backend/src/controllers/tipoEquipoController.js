@@ -44,6 +44,23 @@ const tipoEquipoController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    update: async (req, res) => {
+        try {
+            const { nombre, descripcion } = req.body;
+            const tipoActualizado = await TipoEquipo.findByIdAndUpdate(
+                req.params.id,
+                { nombre, descripcion },
+                { new: true, runValidators: true }
+            );
+            if (!tipoActualizado) {
+                return res.status(404).json({ message: 'Tipo de equipo no encontrado' });
+            }
+            res.json(tipoActualizado);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
     }
 };
 

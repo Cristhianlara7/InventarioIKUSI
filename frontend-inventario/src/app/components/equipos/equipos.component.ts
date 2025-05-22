@@ -33,7 +33,6 @@ import { Router } from '@angular/router';
               <th>Código</th>
               <th>Tipo</th>
               <th>Marca</th>
-              <th>Modelo</th>
               <th>Serial</th>
               <th>Empleado Asignado</th>
               <th>Estado</th>
@@ -45,7 +44,6 @@ import { Router } from '@angular/router';
               <td>{{equipo.codigo}}</td>
               <td>{{equipo.tipoEquipo?.nombre}}</td>
               <td>{{equipo.marca}}</td>
-              <td>{{equipo.modelo}}</td>
               <td>{{equipo.serial}}</td>
               <td>
                 <span *ngIf="equipo.empleadoAsignado">
@@ -87,7 +85,10 @@ import { Router } from '@angular/router';
         <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()">
           <div class="form-group">
             <label>Código</label>
-            <input type="text" formControlName="codigo">
+            <input 
+              type="text" 
+              formControlName="codigo" 
+              [readonly]="equipoSeleccionado"> <!-- Solo readonly si se está editando -->
           </div>
           <div class="form-group">
             <label>Tipo de Equipo</label>
@@ -129,7 +130,7 @@ import { Router } from '@angular/router';
           </ng-container>
 
           <div class="form-buttons">
-            <button type="submit" class="btn-primary">Guardar</button>
+            <button type="submit" class="btn-success">Guardar</button>
             <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
           </div>
         </form>
@@ -464,6 +465,15 @@ import { Router } from '@angular/router';
       cursor: pointer;
     }
 
+    .btn-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
       .btn-detalles {
       background-color: #6c757d;
       color: white;
@@ -744,10 +754,14 @@ export class EquiposComponent implements OnInit {
   editarEquipo(equipo: any) {
     this.equipoSeleccionado = equipo;
     this.equipoForm.patchValue({
-      nombre: equipo.nombre,
+      codigo: equipo.codigo, // Aseguramos que el código se mantenga y no se borre
+      tipoEquipo: equipo.tipoEquipo?._id,
+      marca: equipo.marca,
       modelo: equipo.modelo,
       serial: equipo.serial,
-      tipoEquipo: equipo.tipoEquipo._id
+      memoriaRam: equipo.memoriaRam,
+      discoDuro: equipo.discoDuro,
+      procesador: equipo.procesador
     });
     this.formularioVisible = true;
   }

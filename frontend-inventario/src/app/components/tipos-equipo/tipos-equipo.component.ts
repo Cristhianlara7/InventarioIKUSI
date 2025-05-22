@@ -18,33 +18,43 @@ import { TipoEquipoService } from '../../services/tipo-equipo.service';
       </div>
 
       <!-- Formulario de Tipo de Equipo -->
-      <div class="form-container" *ngIf="formularioVisible">
-        <form [formGroup]="tipoEquipoForm" (ngSubmit)="guardarTipoEquipo()">
-          <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" formControlName="nombre">
-            <div class="error-message" *ngIf="tipoEquipoForm.get('nombre')?.touched && tipoEquipoForm.get('nombre')?.errors?.['required']">
-              El nombre es requerido
-            </div>
+      <div class="modal" *ngIf="formularioVisible">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>{{ tipoEquipoSeleccionado ? 'Editar' : 'Nuevo' }} Tipo de Equipo</h3>
+            <button class="btn-cerrar" (click)="cancelar()">×</button>
           </div>
-          <div class="form-group">
-            <label>Descripción</label>
-            <textarea formControlName="descripcion" rows="3"></textarea>
-            <div class="error-message" *ngIf="tipoEquipoForm.get('descripcion')?.touched && tipoEquipoForm.get('descripcion')?.errors?.['required']">
-              La descripción es requerida
-            </div>
+          <div class="modal-body">
+            <form [formGroup]="tipoEquipoForm" (ngSubmit)="guardarTipoEquipo()">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" formControlName="nombre" class="form-control">
+                <div class="error-message" *ngIf="tipoEquipoForm.get('nombre')?.touched && tipoEquipoForm.get('nombre')?.errors?.['required']">
+                  El nombre es requerido
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Descripción</label>
+                <textarea formControlName="descripcion" rows="3" class="form-control"></textarea>
+                <div class="error-message" *ngIf="tipoEquipoForm.get('descripcion')?.touched && tipoEquipoForm.get('descripcion')?.errors?.['required']">
+                  La descripción es requerida
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn-save" [disabled]="!tipoEquipoForm.valid">
+                  <i class="fas fa-save"></i> {{ tipoEquipoSeleccionado ? 'Actualizar' : 'Guardar' }}
+                </button>
+                <button type="button" class="btn-cancel" (click)="cancelar()">
+                  <i class="fas fa-times"></i> Cancelar
+                </button>
+              </div>
+            </form>
           </div>
-          <div class="form-buttons">
-            <button type="submit" class="btn-primary" [disabled]="!tipoEquipoForm.valid">
-              {{ tipoEquipoSeleccionado ? 'Actualizar' : 'Guardar' }}
-            </button>
-            <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
-          </div>
-        </form>
+        </div>
       </div>
 
       <!-- Lista de Tipos de Equipo -->
-      <div class="tipos-list">
+      <div class="tipos-list" *ngIf="!formularioVisible">
         <table>
           <thead>
             <tr>
@@ -195,6 +205,117 @@ import { TipoEquipoService } from '../../services/tipo-equipo.service';
     .btn-secondary:hover {
       background-color: #5a6268;
     }
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 0;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem;
+      border-top: 1px solid #dee2e6;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .btn-cerrar {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .btn-cerrar:hover {
+      color: #333;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .form-control:focus {
+      border-color: #80bdff;
+      outline: 0;
+      box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    .btn-save {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-save:hover {
+      background-color: #218838;
+    }
+
+    .btn-save:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+      background-color: #5a6268;
+    }
   `]
 })
 export class TiposEquipoComponent implements OnInit {
@@ -235,16 +356,32 @@ export class TiposEquipoComponent implements OnInit {
       const tipoEquipoData = this.tipoEquipoForm.value;
       
       if (this.tipoEquipoSeleccionado) {
-        this.tipoEquipoService.actualizarTipoEquipo(this.tipoEquipoSeleccionado._id, tipoEquipoData)
+        // Asegurarse de que el ID existe y está en el formato correcto
+        const id = this.tipoEquipoSeleccionado._id;
+        console.log('ID del tipo de equipo a actualizar:', id);
+        console.log('Datos a actualizar:', tipoEquipoData);
+
+        if (!id) {
+          console.error('ID no encontrado');
+          alert('Error: No se pudo identificar el tipo de equipo a actualizar');
+          return;
+        }
+
+        this.tipoEquipoService.actualizarTipoEquipo(id, tipoEquipoData)
           .subscribe({
-            next: () => {
-              alert('Tipo de equipo actualizado exitosamente');
+            next: (response) => {
+              console.log('Respuesta de actualización:', response);
               this.cargarTiposEquipo();
               this.limpiarFormulario();
+              alert('Tipo de equipo actualizado exitosamente');
             },
             error: (error) => {
-              console.error('Error al actualizar tipo de equipo:', error);
-              alert('Error al actualizar el tipo de equipo');
+              console.error('Error detallado:', error);
+              if (error.status === 404) {
+                alert('Error: No se encontró el tipo de equipo para actualizar');
+              } else {
+                alert('Error al actualizar el tipo de equipo: ' + (error.message || 'Error desconocido'));
+              }
             }
           });
       } else {

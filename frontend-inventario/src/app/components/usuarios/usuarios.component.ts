@@ -41,14 +41,14 @@ import { environment } from '../../../environments/environment';
             </select>
           </div>
           <div class="form-buttons">
-            <button type="submit" class="btn-primary">Guardar</button>
+            <button type="submit" class="btn-success">Guardar</button>
             <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
           </div>
         </form>
       </div>
 
       <!-- Lista de Usuarios -->
-      <div class="usuarios-list">
+      <div class="usuarios-list" *ngIf="!formularioVisible">
         <table>
           <thead>
             <tr>
@@ -83,6 +83,12 @@ import { environment } from '../../../environments/environment';
     .usuarios-container {
       padding: 20px;
       background-color: #f5f5f5;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
     }
 
     .header {
@@ -248,7 +254,7 @@ import { environment } from '../../../environments/environment';
     }
 
     .btn-primary {
-      background-color: #28a745;
+      background-color: #007bff;
       color: white;
       border: none;
       padding: 8px 16px;
@@ -264,6 +270,15 @@ import { environment } from '../../../environments/environment';
       border-radius: 4px;
       cursor: pointer;
     }
+
+    .btn-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
   `]
 })
 export class UsuariosComponent implements OnInit {
